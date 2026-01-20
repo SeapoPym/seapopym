@@ -1,0 +1,28 @@
+[project]
+name = "seapopym-optimization"
+version = "0.1.0"
+description = "A Python package for optimizing SeapoPym models using DEAP and Dask"
+authors = [
+    { name = "Jules Lehodey", email = "lehodey.jules+seapopym@gmail.com" }
+]
+readme = "README.md"
+license = { text = "GPL-3.0-or-later" }
+requires-python = ">=3.12,<3.13"
+
+dependencies = [
+    "seapopym",
+    "deap>=1.4.3",
+    "dask>=2025.9.0",
+    "distributed>=2025.9.0",
+    "pandera>=0.26.1",
+    "scipy>=1.16.2",
+    "scikit-learn>=1.7.2",
+    "salib>=1.5.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+seapopym = { workspace = true }
