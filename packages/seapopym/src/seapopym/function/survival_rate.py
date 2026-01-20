@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import numpy as np
 import xarray as xr
 
 from seapopym.core import kernel, template
@@ -17,8 +18,22 @@ if TYPE_CHECKING:
 
 
 def survival_rate_bednarsek(state: SeapopymState) -> xr.Dataset:
-    """
-    # TODO(Jules): Add reference to the Bednarsek paper and documentation
+    """Compute the survival rate based on Bednarsek et al. (2021) model.
+
+    The survival rate is calculated using a sigmoid function of a linear combination
+    of temperature and acidity (pH).
+    Reference: Bednarsek et al. (2021). "Integrated Assessment of Ocean Acidification Risks to Pteropods in the Northern Hemisphere"
+
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing temperature, acidity and survival rate parameters.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the survival rate (0-1).
+
     """
     average_temperature = state[ForcingLabels.avg_temperature_by_fgroup]
     average_acidity = state[ForcingLabels.avg_acidity_by_fgroup]
@@ -32,7 +47,7 @@ def survival_rate_bednarsek(state: SeapopymState) -> xr.Dataset:
         + gamma_survival_rate_temperature * average_temperature
         + gamma_survival_rate_acidity * average_acidity
     )
-    survival_rate = xr.ufuncs.exp(linear_function) / (1 + xr.ufuncs.exp(linear_function))  # Sigmoid function
+    survival_rate = np.exp(linear_function) / (1 + np.exp(linear_function))  # Sigmoid function
 
     return xr.Dataset({ForcingLabels.survival_rate: survival_rate})
 
@@ -46,3 +61,4 @@ SurvivalRateTemplate = template.template_unit_factory(
 SurvivalRateBednarsekKernel = kernel.kernel_unit_factory(
     name="survival_rate_bednarsek", template=[SurvivalRateTemplate], function=survival_rate_bednarsek
 )
+"""Kernel to compute survival rate using Bednarsek equation."""

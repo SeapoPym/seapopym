@@ -13,7 +13,21 @@ if TYPE_CHECKING:
 
 # TODO(Jules): Do the same for cohort axis
 def functional_group_desc(f_group_coord_data: Iterable, groups_name: list[str]) -> dict:
-    """Functional group attributs. Standard name is used as an accessor by cf_xarray."""
+    """Functional group attributes. Standard name is used as an accessor by cf_xarray.
+
+    Parameters
+    ----------
+    f_group_coord_data : Iterable
+        The functional group coordinate data.
+    groups_name : list[str]
+        The names of the functional groups.
+
+    Returns
+    -------
+    dict
+        A dictionary containing the attributes.
+
+    """
     return {
         "flag_values": str(f_group_coord_data),
         "flag_meanings": " ".join(groups_name),
@@ -42,6 +56,7 @@ day_length_desc = {
     "description": "Day length at the surface using Forsythe's method.",
     "units": StandardUnitsRegistry.format_unit_string(StandardUnitsLabels.time),
 }
+"""dict: Day length attributes."""
 
 
 average_temperature_by_fgroup_desc = {
@@ -50,6 +65,7 @@ average_temperature_by_fgroup_desc = {
     "description": ("Average temperature by functional group according to their layer position during day and night."),
     "units": StandardUnitsRegistry.format_unit_string(StandardUnitsLabels.temperature),
 }
+"""dict: Average temperature by functional group attributes."""
 
 apply_coefficient_to_primary_production_desc = {
     "standard_name": "primary production",
@@ -96,6 +112,7 @@ recruited_desc = {
     "long_name": "production",
     "units": StandardUnitsRegistry.format_unit_string(StandardUnitsLabels.production),
 }
+"""dict: Recruited attributes."""
 
 preproduction_desc = {
     "standard_name": "preproduction",
@@ -103,35 +120,44 @@ preproduction_desc = {
     "description": "The entire population before recruitment, divided into cohorts.",
     "units": StandardUnitsRegistry.format_unit_string(StandardUnitsLabels.production),
 }
+"""dict: Preproduction attributes."""
 
 biomass_desc = {
     "long_name": "biomass",
     "units": StandardUnitsRegistry.format_unit_string(StandardUnitsLabels.biomass),
     "description": "The biomass of the recruited individuals.",
 }
+"""dict: Biomass attributes."""
+
 average_acidity_by_fgroup_desc = {
     "long_name": "average acidity (pH) by fonctional group",
     "standard_name": "sea water acidity (pH)",
     "description": "Average acidity (pH) by functional group according to their layer position during day and night.",
     "units": StandardUnitsRegistry.format_unit_string(StandardUnitsLabels.acidity),
 }
+"""dict: Average acidity by functional group attributes."""
+
 mortality_acidity_field_desc = {
     "standard_name": "mortality",
     "long_name": "mortality coefficient (T, pH)",
     "description": "Mortality coefficient according to the temperature and acidity (pH).",
 }
+"""dict: Mortality acidity field attributes."""
+
 survival_rate_desc = {
     "standard_name": "survival_rate",
     "long_name": "survival rate",
     "description": "Survival rate according to the temperature and acidity.",
     "units": "dimensionless",
 }
+"""dict: Survival rate attributes."""
 
 temperature_gillooly_desc = {
     "standard_name": "sea water temperature",
     "description": "Sea water temperature with Gillooly et al. (2002) relation.",
     "units": StandardUnitsRegistry.format_unit_string(StandardUnitsLabels.temperature),
 }
+"""dict: Temperature Gillooly attributes."""
 
 food_efficiency_desc = {
     "long_name": "food efficiency by functional group",
@@ -139,3 +165,4 @@ food_efficiency_desc = {
     "description": "Food efficiency based on weighted phytoplankton functional types (pico, nano, micro) using Michaelis-Menten saturation.",
     "units": "dimensionless",
 }
+"""dict: Food efficiency attributes."""

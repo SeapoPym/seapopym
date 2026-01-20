@@ -1,5 +1,4 @@
-"""
-Validation functions for configuration parameters.
+"""Validation functions for configuration parameters.
 
 This module centralizes all validation logic for forcing and parameter units
 to avoid code duplication across configuration modules.
@@ -12,11 +11,11 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pint
-import xarray as xr
 
 if TYPE_CHECKING:
     from numbers import Number
 
+    import xarray as xr
     from pint import Unit
 
     from seapopym.configuration.no_transport.forcing_parameter import ForcingUnit
@@ -24,14 +23,31 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def verify_forcing_init(value, unit: str | Unit, parameter_name: str):
-    """
-    Validate and convert a ForcingUnit to the specified unit.
+def verify_forcing_init(value, unit: str | Unit, parameter_name: str) -> ForcingUnit:
+    """Validate and convert a ForcingUnit to the specified unit.
 
-    This function is used to check if the unit of a parameter is correct.
-    It raises a DimensionalityError if the unit is not correct.
+    Parameters
+    ----------
+    value : ForcingUnit | Any
+        The value to validate.
+    unit : str | Unit
+        The target unit.
+    parameter_name : str
+        The name of the parameter (for error messages).
+
+    Returns
+    -------
+    ForcingUnit
+        The validated and converted ForcingUnit.
+
+    Raises
+    ------
+    DimensionalityError
+        If units are incompatible.
+
     """
     # Import here to avoid circular imports
+
     from seapopym.configuration.no_transport.forcing_parameter import ForcingUnit
 
     value.convert(unit)
@@ -41,8 +57,7 @@ def verify_forcing_init(value, unit: str | Unit, parameter_name: str):
 
 
 def verify_parameter_init(value: Number, unit: str | pint.Unit, parameter_name: str) -> pint.Quantity:
-    """
-    Validate and convert a numeric value to a pint.Quantity with the specified unit.
+    """Validate and convert a numeric value to a pint.Quantity with the specified unit.
 
     This function is used to check if the value of a parameter is correct.
     It raises a ValueError if the value is not correct.
@@ -65,13 +80,14 @@ def verify_parameter_init(value: Number, unit: str | pint.Unit, parameter_name: 
     ------
     ValueError
         If the unit conversion fails or value is invalid.
+
     """
     try:
         # Handle case where value already has units
         if hasattr(value, "units"):  # Already a pint.Quantity
             return value.to(unit)
-        else:  # Raw numeric value
-            return pint.Quantity(value, unit)
+        # Raw numeric value
+        return pint.Quantity(value, unit)
     except pint.DimensionalityError as e:
         message = (
             f"Parameter {parameter_name} : {value} is not in the right unit. "
@@ -84,13 +100,34 @@ def verify_parameter_init(value: Number, unit: str | pint.Unit, parameter_name: 
 
 
 class CoordinateCoherenceValidator:
-    """Validate coordinate coherence between forcing fields with standardized coordinates."""
+    """Validate coordinate coherence between forcing fields with standardized coordinates.
+
+    Attributes
+    ----------
+    forcings : dict[str, ForcingUnit]
+        Dictionary of forcing units to validate.
+
+    """
 
     def __init__(self, forcings: dict[str, ForcingUnit]) -> None:
+        """Initialize the validator.
+
+        Parameters
+        ----------
+        forcings : dict[str, ForcingUnit]
+            Dictionary of forcing units.
+
+        """
         self.forcings = forcings
 
     def validate_temporal_coherence(self) -> None:
-        """Validate T coordinate coherence between ALL forcings that have T."""
+        """Validate T coordinate coherence between ALL forcings that have T.
+
+        Returns
+        -------
+        None
+
+        """
         forcings_with_time = {name: forcing for name, forcing in self.forcings.items() if "T" in forcing.forcing.coords}
 
         if len(forcings_with_time) < 2:
@@ -99,7 +136,13 @@ class CoordinateCoherenceValidator:
         self._validate_coordinate_coherence(forcings_with_time, "T")
 
     def validate_spatial_coherence(self) -> None:
-        """Validate X,Y coordinate coherence between ALL forcings that have spatial dims."""
+        """Validate X,Y coordinate coherence between ALL forcings that have spatial dims.
+
+        Returns
+        -------
+        None
+
+        """
         # Grouper par combinaisons de coordonnées spatiales
         spatial_groups = {}
 
@@ -117,7 +160,13 @@ class CoordinateCoherenceValidator:
                 self._validate_coordinate_coherence(group_forcings, dims)
 
     def validate_all_coherence(self) -> None:
-        """Validate all possible coherence without assumptions about required fields."""
+        """Validate all possible coherence without assumptions about required fields.
+
+        Returns
+        -------
+        None
+
+        """
         # 1. Validation temporelle - tous les forçages avec T
         self.validate_temporal_coherence()
 
@@ -130,7 +179,25 @@ class CoordinateCoherenceValidator:
             self._validate_coordinate_coherence(forcings_with_z, "Z")
 
     def _validate_coordinate_coherence(self, forcings: dict[str, ForcingUnit], coords: str | tuple[str]) -> None:
-        """Generic coordinate coherence validation."""
+        """Generic coordinate coherence validation.
+
+        Parameters
+        ----------
+        forcings : dict[str, ForcingUnit]
+            Subset of forcings to validate.
+        coords : str | tuple[str]
+            Coordinates to check.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If coordinates are inconsistent.
+
+        """
         if isinstance(coords, str):
             coords = (coords,)
 
@@ -146,13 +213,12 @@ class CoordinateCoherenceValidator:
             if not self._are_coordinates_coherent(reference_coords, forcing_coords):
                 coord_desc = "+".join(coords)
                 error_details = self._get_coherence_error_details(reference_coords, forcing_coords, coords)
-                raise ValueError(
-                    f"Coordinate incoherence ({coord_desc}) between '{reference_name}' and '{name}':\n{error_details}"
-                )
+                msg = f"Coordinate incoherence ({coord_desc}) between '{reference_name}' and '{name}':\n{error_details}"
+                raise ValueError(msg)
 
     def _are_coordinates_coherent(self, coords1: dict[str, xr.DataArray], coords2: dict[str, xr.DataArray]) -> bool:
         """Check if two sets of coordinates are coherent."""
-        for coord_name in coords1.keys():
+        for coord_name in coords1:
             if coord_name not in coords2:
                 return False
 
@@ -169,9 +235,8 @@ class CoordinateCoherenceValidator:
                     return False
 
             # Pour les coordonnées spatiales, vérifier les valeurs avec tolérance
-            elif coord_name in ["X", "Y", "Z"]:
-                if not self._are_spatial_coords_coherent(coord1, coord2):
-                    return False
+            elif coord_name in ["X", "Y", "Z"] and not self._are_spatial_coords_coherent(coord1, coord2):
+                return False
 
         return True
 
@@ -247,18 +312,22 @@ class CoordinateCoherenceValidator:
 
 
 def validate_coordinate_coherence(forcings: dict[str, ForcingUnit]) -> None:
-    """
-    Convenience function to validate coordinate coherence between forcing fields.
+    """Convenience function to validate coordinate coherence between forcing fields.
 
     Parameters
     ----------
     forcings : dict[str, ForcingUnit]
         Dictionary of forcing units to validate for coordinate coherence
 
+    Returns
+    -------
+    None
+
     Raises
     ------
     ValueError
         If coordinate incoherence is detected between any forcing fields
+
     """
     validator = CoordinateCoherenceValidator(forcings)
     validator.validate_all_coherence()

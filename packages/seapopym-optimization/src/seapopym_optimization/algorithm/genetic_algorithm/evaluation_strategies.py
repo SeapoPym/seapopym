@@ -1,5 +1,4 @@
-"""
-Evaluation strategies for genetic algorithm.
+"""Evaluation strategies for genetic algorithm.
 
 This module defines different evaluation strategies (sequential, parallel, distributed)
 using the Strategy pattern, allowing dynamic mode switching without modifying
@@ -25,8 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractEvaluationStrategy(ABC):
-    """
-    Abstract interface for evaluation strategies.
+    """Abstract interface for evaluation strategies.
 
     The Strategy pattern allows defining a family of evaluation algorithms,
     encapsulating them and making them interchangeable. This allows the genetic
@@ -35,23 +33,20 @@ class AbstractEvaluationStrategy(ABC):
 
     @abstractmethod
     def evaluate(self, individuals: Sequence) -> list:
-        """
-        Evaluate a list of individuals.
+        """Evaluate a list of individuals.
+
+        This abstract method must be implemented by subclasses to define
+        the evaluation strategy (sequential, parallel, or distributed).
 
         Parameters
         ----------
         individuals : Sequence
-            List of individuals to evaluate
+            List of individuals to evaluate.
 
         Returns
         -------
         list
-            List of calculated fitness values
-
-        Raises
-        ------
-        NotImplementedError
-            If method is not implemented in derived class
+            List of calculated fitness values, one per individual.
 
         """
 
@@ -61,16 +56,14 @@ class AbstractEvaluationStrategy(ABC):
 
 
 class SequentialEvaluation(AbstractEvaluationStrategy):
-    """
-    Classic sequential evaluation strategy.
+    """Classic sequential evaluation strategy.
 
     Uses Python's standard map() function to evaluate
     individuals one by one sequentially.
     """
 
     def __init__(self, cost_function: CostFunction) -> None:
-        """
-        Initialize sequential evaluation strategy.
+        """Initialize sequential evaluation strategy.
 
         Parameters
         ----------
@@ -81,8 +74,7 @@ class SequentialEvaluation(AbstractEvaluationStrategy):
         self.cost_function = cost_function
 
     def evaluate(self, individuals: Sequence) -> list:
-        """
-        Sequential evaluation with standard map().
+        """Sequential evaluation with standard map().
 
         Parameters
         ----------
@@ -109,16 +101,14 @@ class SequentialEvaluation(AbstractEvaluationStrategy):
 
 
 class DistributedEvaluation(AbstractEvaluationStrategy):
-    """
-    Distributed evaluation strategy using Dask.
+    """Distributed evaluation strategy using Dask.
 
     Uses Dask client.map() with a distributed CostFunction to evaluate
     individuals across multiple workers efficiently.
     """
 
     def __init__(self, cost_function: CostFunction, client: Client) -> None:
-        """
-        Initialize distributed evaluation strategy.
+        """Initialize distributed evaluation strategy.
 
         Parameters
         ----------
@@ -132,8 +122,7 @@ class DistributedEvaluation(AbstractEvaluationStrategy):
         self.client = client
 
     def evaluate(self, individuals: Sequence) -> list:
-        """
-        Distributed evaluation using client.map() with **kwargs parameters.
+        """Distributed evaluation using client.map() with **kwargs parameters.
 
         Dask automatically resolves all Futures contained in kwargs
         when they are passed to the mapped function.
@@ -170,16 +159,14 @@ class DistributedEvaluation(AbstractEvaluationStrategy):
 
 
 class ParallelEvaluation(AbstractEvaluationStrategy):
-    """
-    Parallel evaluation strategy using multiprocessing.
+    """Parallel evaluation strategy using multiprocessing.
 
     Uses ProcessPoolExecutor to evaluate individuals in parallel
     across multiple CPU cores.
     """
 
     def __init__(self, cost_function: CostFunction, n_jobs: int = -1) -> None:
-        """
-        Initialize parallel evaluation strategy.
+        """Initialize parallel evaluation strategy.
 
         Parameters
         ----------
@@ -200,8 +187,7 @@ class ParallelEvaluation(AbstractEvaluationStrategy):
             raise ValueError(msg)
 
     def evaluate(self, individuals: Sequence) -> list:
-        """
-        Parallel evaluation using multiprocessing.
+        """Parallel evaluation using multiprocessing.
 
         Parameters
         ----------
@@ -214,7 +200,11 @@ class ParallelEvaluation(AbstractEvaluationStrategy):
             List of calculated fitness values
 
         """
-        logger.debug("Parallel evaluation of %d individuals using %d workers", len(individuals), self.n_jobs)
+        logger.debug(
+            "Parallel evaluation of %d individuals using %d workers",
+            len(individuals),
+            self.n_jobs,
+        )
 
         # Get evaluator and parameters from cost function
         evaluator = self.cost_function.get_evaluator()

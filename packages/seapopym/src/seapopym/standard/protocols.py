@@ -6,7 +6,7 @@ providing duck typing capabilities while maintaining type safety and interface c
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, Self
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -28,6 +28,7 @@ class ChunkParameterProtocol(Protocol):
 
         Returns:
             dict: Dictionary with dimension names as keys and chunk sizes as values.
+
         """
         ...
 
@@ -42,8 +43,6 @@ class KernelParameterProtocol(Protocol):
     Note: This protocol currently has no required methods as kernel
     parameters are primarily data containers.
     """
-
-    pass
 
 
 class ForcingUnitProtocol(Protocol):
@@ -76,6 +75,7 @@ class FunctionalGroupUnitProtocol(Protocol):
         Returns:
             xr.Dataset: Dataset containing the functional group parameters
                        for integration into SeapopymState.
+
         """
         ...
 
@@ -98,6 +98,7 @@ class ForcingParameterProtocol(Protocol):
 
         Returns:
             xr.Dataset: Dataset containing all forcing fields for the model.
+
         """
         ...
 
@@ -119,6 +120,7 @@ class FunctionalGroupParameterProtocol(Protocol):
 
         Returns:
             xr.Dataset: Dataset containing all functional group parameters.
+
         """
         ...
 
@@ -144,6 +146,7 @@ class ConfigurationProtocol(Protocol):
         Returns:
             xr.Dataset: Complete model state containing all parameters and forcing data.
                        This is the SeapopymState used throughout the model execution.
+
         """
         ...
 
@@ -156,6 +159,7 @@ class ConfigurationProtocol(Protocol):
 
         Returns:
             ConfigurationProtocol: Parsed configuration object implementing this protocol.
+
         """
         ...
 
@@ -182,6 +186,7 @@ class ModelProtocol(Protocol):
 
         Returns:
             ModelProtocol: Model instance created from the configuration.
+
         """
         ...
 
@@ -192,11 +197,12 @@ class ModelProtocol(Protocol):
         """
         ...
 
-    def __enter__(self) -> ModelProtocol:
+    def __enter__(self) -> Self:
         """Enter context manager.
 
         Returns:
             ModelProtocol: Self for context manager protocol.
+
         """
         ...
 
@@ -212,6 +218,7 @@ class ModelProtocol(Protocol):
             exc_type: Exception type if an exception occurred.
             exc_value: Exception value if an exception occurred.
             traceback: Traceback object if an exception occurred.
+
         """
         ...
 
@@ -234,5 +241,6 @@ class TemplateProtocol(Protocol):
 
         Returns:
             Template structure as xr.DataArray or xr.Dataset for map_blocks operations.
+
         """
         ...

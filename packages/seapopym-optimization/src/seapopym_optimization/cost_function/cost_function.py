@@ -12,8 +12,8 @@ if TYPE_CHECKING:
     from typing import Any
 
     import numpy as np
-    from seapopym.standard.protocols import ForcingParameterProtocol, KernelParameterProtocol
 
+    from seapopym.standard.protocols import ForcingParameterProtocol, KernelParameterProtocol
     from seapopym_optimization.configuration_generator.protocols import ConfigurationGeneratorProtocol
     from seapopym_optimization.cost_function.processor import AbstractScoreProcessor
     from seapopym_optimization.functional_group.base_functional_group import AbstractFunctionalGroup, FunctionalGroupSet
@@ -54,8 +54,7 @@ class CostFunction:
         forcing: ForcingParameterProtocol,
         observations: dict[str, ObservationProtocol],
     ) -> tuple:
-        """
-        Evaluate the cost function for given parameters.
+        """Evaluate the cost function for given parameters.
 
         Parameters
         ----------
@@ -87,8 +86,7 @@ class CostFunction:
             return tuple(self.processor.process(state, obs) for obs in observations.values())
 
     def get_evaluator(self: CostFunction) -> Callable[..., tuple[Number, ...]]:
-        """
-        Return the evaluation function to be called on workers.
+        """Return the evaluation function to be called on workers.
 
         This method is used by distributed evaluation strategies to obtain
         the core evaluation function without captured parameters.
@@ -107,8 +105,7 @@ class CostFunction:
         return self._cost_function
 
     def get_distributed_parameters(self: CostFunction) -> dict[str, Any]:
-        """
-        Return parameters that should be distributed to workers as a dictionary.
+        """Return parameters that should be distributed to workers as a dictionary.
 
         Dask will automatically resolve any Futures contained in this dictionary
         when it's passed as an argument to client.map().

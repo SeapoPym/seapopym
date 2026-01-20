@@ -8,17 +8,15 @@ from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import xarray as xr
-from seapopym.standard.labels import ConfigurationLabels, CoordinatesLabels, ForcingLabels
 
+from seapopym.standard.labels import ConfigurationLabels, CoordinatesLabels, ForcingLabels
 from seapopym_optimization.observations.observation import DayCycle
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from numbers import Number
 
-    import pandas as pd
     from seapopym.standard import SeapopymState
-
     from seapopym_optimization.cost_function.metric import MetricProtocol
     from seapopym_optimization.observations.protocol import ObservationProtocol
     from seapopym_optimization.observations.spatial import SpatialObservation

@@ -8,77 +8,81 @@ repo_url: https://github.com/SeapoPym/seapopym
 edit_uri: edit/main/docs/
 
 theme:
-  name: material
-  palette:
-    # Light mode
-    - scheme: default
-      primary: blue
-      accent: light blue
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    # Dark mode
-    - scheme: slate
-      primary: blue
-      accent: light blue
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
-  features:
-    - navigation.tabs
-    - navigation.sections
-    - navigation.expand
-    - navigation.top
-    - search.suggest
-    - search.highlight
-    - content.code.copy
-    - content.code.annotate
+    name: material
+    palette:
+        # Light mode
+        - scheme: default
+          primary: blue
+          accent: light blue
+          toggle:
+              icon: material/brightness-7
+              name: Switch to dark mode
+        # Dark mode
+        - scheme: slate
+          primary: blue
+          accent: light blue
+          toggle:
+              icon: material/brightness-4
+              name: Switch to light mode
+    features:
+        - navigation.tabs
+        - navigation.sections
+        - navigation.expand
+        - navigation.top
+        - search.suggest
+        - search.highlight
+        - content.code.copy
+        - content.code.annotate
 
 plugins:
-  - search
-  - mkdocstrings:
-      handlers:
-        python:
-          options:
-            docstring_style: numpy
-            show_source: true
-            show_root_heading: true
-            members_order: source
-  - mkdocs-jupyter:
-      include_source: true
-      execute: false
+    - search
+    - mkdocstrings:
+          handlers:
+              python:
+                  options:
+                      docstring_style: google
+                      show_source: true
+                      show_root_heading: true
+                      members_order: source
+    - mkdocs-jupyter:
+          include_source: true
+          execute: false
 
 markdown_extensions:
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.superfences
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.details
-  - admonition
-  - tables
-  - attr_list
-  - md_in_html
-  - toc:
-      permalink: true
+    - pymdownx.highlight:
+          anchor_linenums: true
+    - pymdownx.superfences
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.details
+    - admonition
+    - tables
+    - attr_list
+    - md_in_html
+    - toc:
+          permalink: true
 
 nav:
-  - Home: index.md
-  - Getting Started:
-      - Installation: getting-started/installation.md
-      - Quick Start: getting-started/quickstart.md
-  - Examples:
-      - Overview: examples/basic-example.md
-      - 1D Model Example: notebooks/example_1d_model.ipynb
-  - API Reference: api/seapopym.md
-  - About:
-      - Citation: about/citation.md
-      - License: about/license.md
-      - Contributing: about/contributing.md
+    - Home: index.md
+    - Getting Started:
+          - Installation: getting-started/installation.md
+          - Quick Start (Model): getting-started/quickstart.md
+          - Quick Start (Optimization): getting-started/quickstart-optimization.md
+    - Examples:
+          - Overview: examples/basic-example.md
+          - 1D Model Example: notebooks/example_1d_model.ipynb
+          - Optimization Example: notebooks/optimization_example.ipynb
+    - API Reference:
+          - SeapoPym: api/seapopym.md
+          - SeapoPym Optimization: api/seapopym-optimization.md
+    - About:
+          - Citation: about/citation.md
+          - License: about/license.md
+          - Contributing: about/contributing.md
 
 extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/SeapoPym
-  version:
-    provider: mike
+    social:
+        - icon: fontawesome/brands/github
+          link: https://github.com/SeapoPym
+    version:
+        provider: mike

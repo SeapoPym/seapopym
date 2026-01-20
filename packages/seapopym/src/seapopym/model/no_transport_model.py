@@ -1,4 +1,10 @@
-"""The LMTL model without ADRE equations."""
+"""The LMTL model without ADRE equations.
+
+LMTL stands for Lower Mid-Trophic Level.
+ADRE stands for Advection-Diffusion-Reaction Equation.
+This module implements a simplified version of the model where transport (advection and diffusion)
+is neglected, focusing on local biological processes.
+"""
 
 from __future__ import annotations
 
@@ -61,14 +67,35 @@ NoTransportUnrecruitedKernel = kernel_factory(
 
 @dataclass
 class NoTransportModel:
-    """Implement the LMTL model without the transport (Advection-Diffusion)."""
+    """Implement the LMTL model without the transport (Advection-Diffusion).
+
+    Attributes
+    ----------
+    state : SeapopymState
+        The model state containing all forcing data and parameters.
+    kernel : Kernel
+        The computation kernel to be applied to the state.
+
+    """
 
     state: SeapopymState
     kernel: Kernel
 
     @classmethod
     def from_configuration(cls: type[NoTransportModel], configuration: NoTransportConfiguration) -> NoTransportModel:
-        """Create a model from a configuration."""
+        """Create a model from a configuration.
+
+        Parameters
+        ----------
+        configuration : NoTransportConfiguration
+            The configuration object containing state and parameters.
+
+        Returns
+        -------
+        NoTransportModel
+            An initialized model instance.
+
+        """
         if configuration.kernel.compute_initial_conditions:
             kernel_class = NoTransportInitialConditionKernel
         elif configuration.kernel.compute_preproduction:
@@ -84,20 +111,49 @@ class NoTransportModel:
 
     @property
     def template(self: NoTransportModel) -> SeapopymState:
-        """The template getter."""
+        """The template getter.
+
+        Returns
+        -------
+        SeapopymState
+            The template representing the structure of the model output.
+
+        """
         return self.kernel.template(self.state)
 
     @property
-    def expected_memory_usage(self: NoTransportModel) -> int:
-        """The expected memory usage getter."""
+    def expected_memory_usage(self: NoTransportModel) -> str:
+        """Return the expected memory usage of the model state in MB.
+
+        Returns
+        -------
+        str
+            A string describing the memory usage in MB.
+
+        """
         return f"The expected memory usage is {self.template.nbytes / 1e6:.2f} MB."
 
     def run(self: NoTransportModel) -> None:
-        """Run the model. Wrapper of the pre-production, production and post-production processes."""
+        """Run the model. Wrapper of the pre-production, production and post-production processes.
+
+        The model state is updated in place.
+        """
         self.state = self.kernel.run(self.state)
 
     def export_initial_conditions(self: NoTransportModel) -> xr.Dataset:
-        """Export the initial conditions."""
+        """Export the initial conditions.
+
+        Returns
+        -------
+        xr.Dataset
+            A dataset containing the initial conditions (biomass and preproduction).
+
+        Raises
+        ------
+        ValueError
+            If the model was not run with compute_initial_conditions or compute_preproduction set to True.
+
+        """
         if (
             not self.state[ConfigurationLabels.compute_initial_conditions]
             and not self.state[ConfigurationLabels.compute_preproduction]
@@ -110,7 +166,14 @@ class NoTransportModel:
         return self.state[[ForcingLabels.biomass, ForcingLabels.preproduction]].isel(T=-1)
 
     def __enter__(self: NoTransportModel) -> Self:
-        """Enter context manager."""
+        """Enter context manager.
+
+        Returns
+        -------
+        Self
+            The model instance.
+
+        """
         return self
 
     def __exit__(
@@ -119,7 +182,18 @@ class NoTransportModel:
         exc_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        """Exit context manager and cleanup memory."""
+        """Exit context manager and cleanup memory.
+
+        Parameters
+        ----------
+        exc_type : type[BaseException] | None
+            The exception type if an exception was raised.
+        exc_value : BaseException | None
+            The exception value if an exception was raised.
+        traceback : TracebackType | None
+            The traceback if an exception was raised.
+
+        """
         # Clean up large objects
         if hasattr(self, "state"):
             del self.state
@@ -172,13 +246,29 @@ NoTransportUnrecruitedKernelLight = kernel_factory(
 
 @dataclass
 class NoTransportLightModel(NoTransportModel):
-    """Implement the LMTL model without the transport (Advection-Diffusion) and with light kernel."""
+    """Implement the LMTL model without the transport (Advection-Diffusion) and with light kernel.
+
+    The Light model removes intermediate variables from the state during computation
+    to reduce memory usage.
+    """
 
     @classmethod
     def from_configuration(
         cls: type[NoTransportLightModel], configuration: NoTransportConfiguration
     ) -> NoTransportLightModel:
-        """Create a model from a configuration."""
+        """Create a model from a configuration.
+
+        Parameters
+        ----------
+        configuration : NoTransportConfiguration
+            The configuration object.
+
+        Returns
+        -------
+        NoTransportLightModel
+            An initialized light model instance.
+
+        """
         if configuration.kernel.compute_initial_conditions:
             kernel_class = NoTransportInitialConditionKernelLight
         elif configuration.kernel.compute_preproduction:
@@ -212,13 +302,28 @@ NoTransportSpaceOptimizedKernelLight = kernel_factory(
 
 @dataclass
 class NoTransportSpaceOptimizedLightModel(NoTransportModel):
-    """Implement the LMTL model without the transport (Advection-Diffusion) and with light kernel."""
+    """Implement the LMTL model without the transport (Advection-Diffusion) and with light kernel.
+
+    This version uses a space-optimized production kernel to further reduce memory footprint.
+    """
 
     @classmethod
     def from_configuration(
         cls: type[NoTransportSpaceOptimizedLightModel], configuration: NoTransportConfiguration
     ) -> NoTransportSpaceOptimizedLightModel:
-        """Create a model from a configuration."""
+        """Create a model from a configuration.
+
+        Parameters
+        ----------
+        configuration : NoTransportConfiguration
+            The configuration object.
+
+        Returns
+        -------
+        NoTransportSpaceOptimizedLightModel
+            An initialized space-optimized light model instance.
+
+        """
         state = configuration.state
         chunk = configuration.forcing.chunk.as_dict()
         parallel = configuration.forcing.parallel

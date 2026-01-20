@@ -1,5 +1,4 @@
-"""
-This module provides the core functionality for the seapopym package.
+"""This module provides the core functionality for the seapopym package.
 
 - `Kernel`: Manages functions used throughout simulations.
 - `Template`: Defines the structure for parallel and distributed computations.

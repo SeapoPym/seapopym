@@ -19,6 +19,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.ruff_cache
 
 # Virtual environments
 .venv/
@@ -43,6 +44,7 @@ htmlcov/
 *.swo
 *~
 .DS_Store
+.claude
 
 # Jupyter
 .ipynb_checkpoints

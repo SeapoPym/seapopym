@@ -13,8 +13,7 @@ if TYPE_CHECKING:
 
 @runtime_checkable
 class CostFunctionProtocol(Protocol):
-    """
-    Protocol for cost functions used in optimization.
+    """Protocol for cost functions used in optimization.
 
     This protocol defines the interface that cost functions must implement
     to work with the optimization algorithms. It separates the evaluation
@@ -32,8 +31,7 @@ class CostFunctionProtocol(Protocol):
     observations: dict[str, ObservationProtocol]
 
     def get_evaluator(self) -> Callable[..., tuple[Number, ...]]:
-        """
-        Return the evaluation function to be called on workers.
+        """Return the evaluation function to be called on workers.
 
         The returned function should accept:
         - args: Individual parameters as a sequence
@@ -54,8 +52,7 @@ class CostFunctionProtocol(Protocol):
         ...
 
     def get_distributed_parameters(self) -> dict[str, Any]:
-        """
-        Return parameters that should be distributed to workers.
+        """Return parameters that should be distributed to workers.
 
         Returns a dictionary of parameters that may contain distributed
         data (e.g., Dask Futures). Evaluation strategies will handle

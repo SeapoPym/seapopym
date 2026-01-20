@@ -4,21 +4,22 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import partial
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 import numpy as np
 from deap import tools
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
 
 @dataclass
 class EnergyCoefficientConstraint:
-    """
-    Constraint to ensure that the sum of all energy transfert coefficients is within a specified range.
+    """Constraint to ensure that the sum of all energy transfert coefficients is within a specified range.
+
     This constraint is used to apply a penalty if the sum of the coefficients is greater than `max_energy_coef_value`
     or less than `min_energy_coef_value`.
+
     Attributes.
     ----------
         parameters_name: Sequence[str]
@@ -35,9 +36,9 @@ class EnergyCoefficientConstraint:
     max_energy_coef_value: float
 
     def _feasible(self, selected_index: list[int]) -> Callable[[Sequence[float]], bool]:
-        """
-        The penalty when the sum of all energy transfert coefficients are greater than `max_energy_coef_value` or less
-        than `min_energy_coef_value`.
+        """Check if the energy transfer sum is within allowed bounds.
+
+        Validates that the sum of coefficients stays between the minimum and maximum defined values.
         """
 
         def feasible(individual: Sequence[float], min_coef: float, max_coef: float) -> bool:
@@ -47,15 +48,15 @@ class EnergyCoefficientConstraint:
         return partial(feasible, min_coef=self.min_energy_coef_value, max_coef=self.max_energy_coef_value)
 
     def generate(self, parameter_names: list[str]) -> tools.DeltaPenalty:
-        """
-        Generate the DeltaPenalty object used by the DEAP library to apply the penalty on individuals that do not
-        satisfy the constraint.
+        """Generate the DeltaPenalty object used by the DEAP library.
+
+        Apply the penalty on individuals that do not satisfy the constraint.
         """
 
         def generate_index(ordered_names: list[str]) -> list[int]:
-            """
-            List the index of the `parameters_name` in the `ordered_names` sequence. This should be used by the feasible
-            function to retrive the position of the selected parameters.
+            """List the index of the `parameters_name` in the `ordered_names` sequence.
+
+            This should be used by the feasible function to retrieve the position of the selected parameters.
             """
             return [ordered_names.index(param) for param in self.parameters_name]
 

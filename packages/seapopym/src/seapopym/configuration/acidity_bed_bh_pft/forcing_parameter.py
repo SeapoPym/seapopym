@@ -1,3 +1,5 @@
+"""Forcing parameters for Acidity model with PFT."""
+
 from __future__ import annotations
 
 from functools import partial
@@ -12,7 +14,18 @@ from seapopym.standard.units import StandardUnitsLabels
 
 @frozen(kw_only=True)
 class ForcingParameter(acidity.ForcingParameter):
-    """This data class extends ForcingParameters to include an acidity forcing field."""
+    """This data class extends ForcingParameters to include acidity and PFT forcing fields.
+
+    Attributes
+    ----------
+    chlorophyll_pico : ForcingUnit
+        Path to the picophytoplankton chlorophyll field.
+    chlorophyll_micro : ForcingUnit
+        Path to the microphytoplankton chlorophyll field.
+    chlorophyll_nano : ForcingUnit
+        Path to the nanophytoplankton chlorophyll field.
+
+    """
 
     chlorophyll_pico: no_transport.ForcingUnit = field(
         alias=ForcingLabels.chlorophyll_pico,

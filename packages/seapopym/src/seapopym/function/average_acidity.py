@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import xarray as xr
 
 from seapopym.core import kernel, template
@@ -9,32 +11,30 @@ from seapopym.core import kernel, template
 # WARNING check that
 from seapopym.standard.attributs import average_acidity_by_fgroup_desc
 from seapopym.standard.labels import ConfigurationLabels, CoordinatesLabels, ForcingLabels
-from seapopym.standard.types import SeapopymState
+
+if TYPE_CHECKING:
+    from seapopym.standard.types import SeapopymState
 
 
 def average_acidity(state: SeapopymState) -> xr.Dataset:
-    """
+    """Compute the average acidity experienced by each functional group.
+
     In the open ocean, pH does not exhibit significant temporal or spatial variability.
     However, in coastal shelf and estuarine regions, pH can fluctuate both diurnally
     and spatially due to biological activity and freshwater input.
     Additionally, pH varies with depth.
-    This function is designed to capture such potential variability (e.g. could be useful
-    in a future version of the model that includes vertical diurnal migration of pteropods.).
+    This function is designed to capture such potential variability.
 
-    Depend on:
-    - compute_daylength
-    - mask_by_fgroup.
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing acidity, day length, masks and layer configuration.
 
-    Input
-    -----
-    - mask_by_fgroup()      [time, latitude, longitude]
-    - compute_daylength()   [functional_group, latitude, longitude] in day
-    - day/night_layer       [functional_group]
-    - acidity           [time, latitude, longitude, layer] dimensionless (pH)
+    Returns
+    -------
+    xr.Dataset
+        A dataset containing the average acidity by functional group.
 
-    Output
-    ------
-    - average_acidity [functional_group, time, latitude, longitude] dimensionless (pH)
     """
     acidity = state[ForcingLabels.acidity]
     day_length = state[ForcingLabels.day_length]
@@ -67,3 +67,4 @@ AverageAcidityTemplate = template.template_unit_factory(
 AverageAcidityKernel = kernel.kernel_unit_factory(
     name="average_acidity", template=[AverageAcidityTemplate], function=average_acidity
 )
+"""Kernel to compute average acidity by functional group."""

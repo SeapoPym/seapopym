@@ -1,3 +1,5 @@
+"""Functional group parameters for the AcidityModel."""
+
 from functools import partial
 
 import pint
@@ -10,7 +12,8 @@ from seapopym.standard.labels import ConfigurationLabels
 
 @frozen(kw_only=True)
 class FunctionalTypeParameter(no_transport.FunctionalTypeParameter):
-    """
+    """Functional group parameters for pH-dependent mortality.
+
     Adapted from the original FunctionalTypeParameter class to include parameters related to the effect of pH on
     mortality.
     """

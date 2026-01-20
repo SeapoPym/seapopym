@@ -11,8 +11,7 @@ def compute_limits_from_zeu_lat_sst(
     sst: xr.DataArray,
     layer_bounds: dict | None = None,
 ) -> xr.Dataset:
-    """
-    Compute the layers limits from zeu and definition. Apply a correction based on latitude and sst.
+    """Compute the layers limits from zeu and definition. Apply a correction based on latitude and sst.
 
     Based on 2020 report evolution for cmems.
 

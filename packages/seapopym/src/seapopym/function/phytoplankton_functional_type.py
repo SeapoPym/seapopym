@@ -22,8 +22,7 @@ if TYPE_CHECKING:
 
 
 def food_efficiency(state: SeapopymState) -> xr.Dataset:
-    """
-    Calculate food efficiency based on phytoplankton functional types.
+    """Calculate food efficiency based on phytoplankton functional types.
 
     This function computes the food efficiency for each functional group based on
     a weighted combination of three phytoplankton functional types (pico, nano, micro)
@@ -35,20 +34,16 @@ def food_efficiency(state: SeapopymState) -> xr.Dataset:
     where weighted_phyto is:
         w_pico * chlorophyll_pico + w_nano * chlorophyll_nano + w_micro * chlorophyll_micro
 
-    Input
-    -----
-    - w_pico [functional_group]: Weight for picophytoplankton (dimensionless)
-    - w_nano [functional_group]: Weight for nanophytoplankton (dimensionless)
-    - w_micro [functional_group]: Weight for microphytoplankton (dimensionless)
-    - chlorophyll_pico [time, latitude, longitude]: Picophytoplankton concentration (g/m³)
-    - chlorophyll_nano [time, latitude, longitude]: Nanophytoplankton concentration (g/m³)
-    - chlorophyll_micro [time, latitude, longitude]: Microphytoplankton concentration (g/m³)
-    - ks [functional_group]: Half-saturation constant (g/m³)
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing weights, chlorophyll concentrations and ks parameters.
 
-    Output
-    ------
-    - food_efficiency [functional_group, time, latitude, longitude]: Food efficiency
-      coefficient (dimensionless, range 0-1)
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the food efficiency coefficient (dimensionless, range 0-1).
+
     """
     w_pico = state[ConfigurationLabels.w_pico]
     w_nano = state[ConfigurationLabels.w_nano]
@@ -69,15 +64,10 @@ def food_efficiency(state: SeapopymState) -> xr.Dataset:
         food_eff.append(weighted_phyto / (ks_fgroup + weighted_phyto))
 
     food_eff = xr.concat(
-        food_eff,
-        dim=CoordinatesLabels.functional_group,
-        coords=[CoordinatesLabels.functional_group.value]
+        food_eff, dim=CoordinatesLabels.functional_group, coords=[CoordinatesLabels.functional_group.value]
     )
     food_eff = food_eff.transpose(
-        CoordinatesLabels.functional_group,
-        CoordinatesLabels.time,
-        CoordinatesLabels.Y,
-        CoordinatesLabels.X
+        CoordinatesLabels.functional_group, CoordinatesLabels.time, CoordinatesLabels.Y, CoordinatesLabels.X
     )
 
     return xr.Dataset({ForcingLabels.food_efficiency: food_eff})
@@ -92,6 +82,7 @@ FoodEfficiencyTemplate = template.template_unit_factory(
 FoodEfficiencyKernel = kernel.kernel_unit_factory(
     name="food_efficiency", template=[FoodEfficiencyTemplate], function=food_efficiency
 )
+"""Kernel to compute food efficiency."""
 
 FoodEfficiencyKernelLight = kernel.kernel_unit_factory(
     name="food_efficiency_light",
@@ -103,3 +94,4 @@ FoodEfficiencyKernelLight = kernel.kernel_unit_factory(
         ForcingLabels.chlorophyll_micro,
     ],
 )
+"""Light Kernel for food efficiency (removes source chlorophyll)."""

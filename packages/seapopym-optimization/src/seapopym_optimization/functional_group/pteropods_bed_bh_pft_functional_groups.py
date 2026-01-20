@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from seapopym_optimization.functional_group import PteropodBedBHFunctionalGroup
+from seapopym_optimization.functional_group.pteropods_bed_bh_functional_groups import PteropodBedBHFunctionalGroup
 
 if TYPE_CHECKING:
     from seapopym_optimization.functional_group.base_functional_group import Parameter

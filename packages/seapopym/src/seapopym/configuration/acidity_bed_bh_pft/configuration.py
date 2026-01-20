@@ -8,7 +8,14 @@ from seapopym.configuration.acidity_bed_bh_pft.functional_group_parameter import
 
 @frozen(kw_only=True)
 class AcidityBedBHPFTConfiguration(acidity_bed_bh.AcidityBedBHConfiguration):
-    """Configuration for acidity model using Bednarsek mortality, Beverton-Holt recruitment and PFT."""
+    """Configuration for acidity model using Bednarsek mortality, Beverton-Holt recruitment and PFT.
+
+    Attributes
+    ----------
+    functional_group : FunctionalGroupParameter
+        The functional group parameters for the Bednarsek-Beverton-Holt-PFT-Acidity configuration.
+
+    """
 
     functional_group: FunctionalGroupParameter = field(
         metadata={

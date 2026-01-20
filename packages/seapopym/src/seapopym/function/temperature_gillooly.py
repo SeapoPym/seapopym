@@ -16,25 +16,26 @@ if TYPE_CHECKING:
 
 
 def temperature_gillooly(state: SeapopymState) -> xr.Dataset:
-    """
-    Apply Gillooly et al. (2002) temperature transformation for metabolic scaling.
+    """Apply Gillooly et al. (2002) temperature transformation for metabolic scaling.
 
     This function transforms temperature to account for metabolic energy allocation
     at the cellular level, following Gillooly et al. (2002) model based on West et al. (1997, 2001).
     The transformation relates temperature to mass-corrected development time and metabolic rates.
 
-    Input
-    ------
-    - temperature [time, Y, X, Z]
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing temperature data.
 
-    Output
-    ------
-    - temperature [time, Y, X, Z]
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the transformed temperature.
 
-    Note:
-    ----
+    Notes
+    -----
     The temperature transformation is computed as:
-    - T' = T / (1 + T/273)
+    T' = T / (1 + T/273)
 
     Where T is the input temperature and 273 represents the conversion factor
     relating absolute temperature scale to metabolic rates.
@@ -57,3 +58,4 @@ TemperatureGilloolyTemplate = template.template_unit_factory(
 TemperatureGilloolyKernel = kernel.kernel_unit_factory(
     name="temperature_gillooly", template=[TemperatureGilloolyTemplate], function=temperature_gillooly
 )
+"""Kernel to transform temperature according to Gillooly et al. (2002)."""

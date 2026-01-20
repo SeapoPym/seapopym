@@ -1,5 +1,5 @@
-"""
-This module defines the kernel parameters which are used to modify behaviour of kernel functions.
+"""This module defines the kernel parameters which are used to modify behaviour of kernel functions.
+
 These meta-parameters are integrated in the model state and used in kernel functions.
 """
 
@@ -13,7 +13,18 @@ from seapopym.standard.labels import ConfigurationLabels
 
 @frozen(kw_only=True)
 class KernelParameter:
-    """This data class is used to store the parameters of the kernel."""
+    """This data class is used to store the parameters of the kernel.
+
+    Attributes
+    ----------
+    angle_horizon_sun : Number
+        The angle between the horizon and the sun in degrees. Default is 0.0.
+    compute_initial_conditions : bool
+        If True, the initial conditions are computed. Default is False.
+    compute_preproduction : bool
+        If True, the pre-production is computed. Default is False.
+
+    """
 
     angle_horizon_sun: Number = field(
         alias=ConfigurationLabels.angle_horizon_sun,
@@ -43,7 +54,14 @@ class KernelParameter:
             raise ValueError(msg)
 
     def to_dataset(self) -> xr.Dataset:
-        """Convert the kernel parameters to a dictionary."""
+        """Convert the kernel parameters to a dataset.
+
+        Returns
+        -------
+        xr.Dataset
+            Dataset containing the kernel parameters.
+
+        """
         return xr.Dataset(
             {
                 ConfigurationLabels.angle_horizon_sun: self.angle_horizon_sun,

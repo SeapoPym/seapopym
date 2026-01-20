@@ -1,5 +1,5 @@
-"""
-This module contains the function used to compute the recruited population in  the NotTransport model.
+"""This module contains the function used to compute the recruited population in  the NotTransport model.
+
 They are run in sequence in timeseries order.
 """
 
@@ -35,7 +35,19 @@ PREPRODUCTION_DIMS = [
 
 
 def _production_helper_init_forcing(fgroup_data: xr.Dataset) -> dict[str, np.ndarray]:
-    """Initialise the forcing data used in the Numba function that compute production."""
+    """Initialize the forcing data used in the Numba function that compute production.
+
+    Parameters
+    ----------
+    fgroup_data : xr.Dataset
+        Data for a specific functional group.
+
+    Returns
+    -------
+    dict[str, np.ndarray]
+        Standardized forcing data.
+
+    """
 
     def standardize_forcing(forcing: xr.DataArray, nan: object = 0.0, dtype: type = np.float64) -> np.ndarray:
         """Refer to Numba documentation about array typing."""
@@ -58,7 +70,23 @@ def _production_helper_init_forcing(fgroup_data: xr.Dataset) -> dict[str, np.nda
 def _production_helper_format_output(
     fgroup_data: SeapopymState, dims: Iterable[SeapopymDims], data: np.ndarray
 ) -> SeapopymForcing:
-    """Convert the output of the Numba function to a DataArray."""
+    """Convert the output of the Numba function to a DataArray.
+
+    Parameters
+    ----------
+    fgroup_data : SeapopymState
+        The functional group data containing coordinates.
+    dims : Iterable[SeapopymDims]
+        Dimensions of the output data.
+    data : np.ndarray
+        The raw data array from Numba.
+
+    Returns
+    -------
+    SeapopymForcing
+        Formatted DataArray.
+
+    """
     coords = {fgroup_data[dim_name].name: fgroup_data[dim_name] for dim_name in dims}
     formated_data = xr.DataArray(coords=coords, dims=coords.keys())
     formated_data = CoordinatesLabels.order_data(formated_data)
@@ -67,7 +95,19 @@ def _production_helper_format_output(
 
 
 def production(state: SeapopymState) -> xr.Dataset:
-    """Compute the production using a numba jit function."""
+    """Compute the production using a numba jit function.
+
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the recruited population.
+
+    """
     state = state.transpose(*CoordinatesLabels.ordered(), missing_dims="ignore")
     results_recruited = []
 
@@ -82,7 +122,19 @@ def production(state: SeapopymState) -> xr.Dataset:
 
 
 def production_space_optimized(state: SeapopymState) -> xr.Dataset:
-    """Compute the production using a numba jit function."""
+    """Compute the production using a numba jit function (space optimized).
+
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the recruited population.
+
+    """
     state = state.transpose(*CoordinatesLabels.ordered(), missing_dims="ignore")
     results_recruited = []
 
@@ -97,7 +149,19 @@ def production_space_optimized(state: SeapopymState) -> xr.Dataset:
 
 
 def production_initial_condition(state: SeapopymState) -> xr.Dataset:
-    """Compute the production using a numba jit function. Export the initial conditions."""
+    """Compute the production using a numba jit function. Export the initial conditions.
+
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing recruited population and pre-production initial conditions.
+
+    """
     state = state.transpose(*CoordinatesLabels.ordered(), missing_dims="ignore")
     results_recruited = []
     results_extra = []
@@ -118,7 +182,19 @@ def production_initial_condition(state: SeapopymState) -> xr.Dataset:
 
 
 def production_unrecruited(state: SeapopymState) -> xr.Dataset:
-    """Compute the production using a numba jit function. Export the unrecruited production (pre-production)."""
+    """Compute the production using a numba jit function. Export the unrecruited production (pre-production).
+
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing recruited population and full pre-production history.
+
+    """
     state = state.transpose(*CoordinatesLabels.ordered(), missing_dims="ignore")
     results_recruited = []
     results_extra = []
@@ -154,35 +230,48 @@ PreproductionTemplate = template.template_unit_factory(
 
 
 ProductionKernel = kernel.kernel_unit_factory(name="production", template=[RecruitedTemplate], function=production)
+"""Kernel to compute production."""
+
 ProductionInitialConditionKernel = kernel.kernel_unit_factory(
     name="production_initial_condition",
     template=[RecruitedTemplate, InitialProductionTemplate],
     function=production_initial_condition,
 )
+"""Kernel to compute production and export initial conditions."""
+
 ProductionUnrecruitedKernel = kernel.kernel_unit_factory(
     name="production_unrecruited", template=[RecruitedTemplate, PreproductionTemplate], function=production_unrecruited
 )
+"""Kernel to compute production and export unrecruited population."""
+
 ProductionKernelLight = kernel.kernel_unit_factory(
     name="production_light",
     template=[RecruitedTemplate],
     function=production,
     to_remove_from_state=[ForcingLabels.primary_production_by_fgroup, ForcingLabels.mask_temperature],
 )
+"""Light Kernel for production (removes primary production and temperature mask)."""
+
 ProductionInitialConditionKernelLight = kernel.kernel_unit_factory(
     name="production_initial_condition_light",
     template=[RecruitedTemplate, InitialProductionTemplate],
     function=production_initial_condition,
     to_remove_from_state=[ForcingLabels.primary_production_by_fgroup, ForcingLabels.mask_temperature],
 )
+"""Light Kernel for production initial condition."""
+
 ProductionUnrecruitedKernelLight = kernel.kernel_unit_factory(
     name="production_unrecruited_light",
     template=[RecruitedTemplate, PreproductionTemplate],
     function=production_unrecruited,
     to_remove_from_state=[ForcingLabels.primary_production_by_fgroup, ForcingLabels.mask_temperature],
 )
+"""Light Kernel for unrecruited production."""
+
 ProductionSpaceOptimizedKernelLight = kernel.kernel_unit_factory(
     name="production_space_optimized_light",
     template=[RecruitedTemplate],
     function=production_space_optimized,
     to_remove_from_state=[ForcingLabels.primary_production_by_fgroup, ForcingLabels.mask_temperature],
 )
+"""Light Kernel for space optimized production."""

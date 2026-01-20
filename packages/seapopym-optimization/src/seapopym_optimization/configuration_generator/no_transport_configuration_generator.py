@@ -25,10 +25,9 @@ if TYPE_CHECKING:
 def no_transport_functional_group_unit_generator(
     functional_group: NoTransportFunctionalGroup,
 ) -> FunctionalGroupUnit:
-    """
-    Allows the transformation of a functional group as defined in optimization into a functional group that can be used
-    by SeapoPym.
+    """Transform optimization functional groups for SeapoPym usage.
 
+    Converts functional groups defined during optimization into a format compatible with SeapoPym.
     Based on `FunctionalGroupUnitGeneratorProtocol`.
     """
     return FunctionalGroupUnit(
@@ -49,8 +48,7 @@ def no_transport_functional_group_unit_generator(
 
 @dataclass
 class NoTransportConfigurationGenerator:
-    """
-    Generate the configuration used to create a NoTransport model in SeapoPym.
+    """Generate the configuration used to create a NoTransport model in SeapoPym.
 
     Based on `ConfigurationGeneratorProtocol`.
     """

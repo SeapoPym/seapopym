@@ -1,4 +1,4 @@
-"""Funcitons used to generate a landmask from any forcing data."""
+"""Functions used to generate a landmask from any forcing data."""
 
 from __future__ import annotations
 
@@ -15,7 +15,19 @@ if TYPE_CHECKING:
 
 
 def global_mask(state: SeapopymState) -> xr.Dataset:
-    """Create a global mask from temperature forcing in the state of the model."""
+    """Create a global mask from temperature forcing in the state of the model.
+
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing temperature forcing.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the global mask (True for ocean, False for land).
+
+    """
     mask = state[ForcingLabels.temperature].isel(T=0).notnull().reset_coords("T", drop=True)
     return xr.Dataset({ForcingLabels.global_mask: mask})
 
@@ -29,3 +41,4 @@ GlobalMaskTemplate = template.template_unit_factory(
 
 
 GlobalMaskKernel = kernel.kernel_unit_factory(name="global_mask", template=[GlobalMaskTemplate], function=global_mask)
+"""Kernel to compute global mask."""

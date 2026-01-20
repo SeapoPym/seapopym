@@ -12,12 +12,31 @@ from seapopym.standard.labels import ConfigurationLabels
 
 @frozen(kw_only=True)
 class FunctionalTypeParameter:
-    """
-    Functional type parameters for acidity model with Bednarsek mortality equation.
+    """Functional type parameters for acidity model with Bednarsek mortality equation.
 
     Implements the Bednarsek et al. (2022) mortality equation parameters plus recruitment parameters:
     - Bednarsek mortality: lambda_0_bed + gamma_lambda_temperature_bed * T + gamma_lambda_acidity_bed * pH
     - Recruitment parameters: tr_0 and gamma_tr for temperature-dependent recruitment age
+
+    Attributes
+    ----------
+    lambda_0 : pint.Quantity
+        Value of lambda when temperature is 0°C and aragonite is 0 (dimensionless).
+    gamma_lambda_temperature : pint.Quantity
+        Sensitivity to temperature in Bednarsek equation (1/degC).
+    gamma_lambda_acidity : pint.Quantity
+        Sensitivity to aragonite in Bednarsek equation (dimensionless).
+    survival_rate_0 : pint.Quantity
+        Value of survival_rate when temperature is 0°C and aragonite is 0 (dimensionless).
+    gamma_survival_rate_temperature : pint.Quantity
+        Sensitivity to temperature in Bednarsek equation (1/degC).
+    gamma_survival_rate_acidity : pint.Quantity
+        Sensitivity to aragonite in Bednarsek equation (dimensionless).
+    tr_0 : pint.Quantity
+        Maximum value of the recruitment age (i.e. when temperature is 0°C) (day).
+    gamma_tr : pint.Quantity
+        Sensibility of recruitment age to temperature (1/degC).
+
     """
 
     lambda_0: pint.Quantity = field(

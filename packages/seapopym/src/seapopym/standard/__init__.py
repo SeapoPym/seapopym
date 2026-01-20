@@ -8,40 +8,40 @@ Central module providing:
 """
 
 from seapopym.standard.coordinate_authority import CoordinateAuthority, coordinate_authority
-from seapopym.standard.labels import CoordinatesLabels, ConfigurationLabels, ForcingLabels
+from seapopym.standard.labels import ConfigurationLabels, CoordinatesLabels, ForcingLabels
 from seapopym.standard.protocols import (
-    ConfigurationProtocol,
-    ModelProtocol,
-    TemplateProtocol,
     ChunkParameterProtocol,
-    KernelParameterProtocol,
+    ConfigurationProtocol,
     ForcingParameterProtocol,
     FunctionalGroupParameterProtocol,
+    KernelParameterProtocol,
+    ModelProtocol,
+    TemplateProtocol,
 )
-from seapopym.standard.types import SeapopymState, SeapopymForcing, ForcingName, SeapopymDims
+from seapopym.standard.types import ForcingName, SeapopymDims, SeapopymForcing, SeapopymState
 from seapopym.standard.units import StandardUnitsRegistry
 
 __all__ = [
-    # Core types
-    "SeapopymState",
-    "SeapopymForcing",
-    "ForcingName",
-    "SeapopymDims",
-    # Labels
-    "CoordinatesLabels",
-    "ForcingLabels",
+    "ChunkParameterProtocol",
     "ConfigurationLabels",
     # Protocols
     "ConfigurationProtocol",
-    "ModelProtocol",
-    "TemplateProtocol",
-    "ChunkParameterProtocol",
-    "KernelParameterProtocol",
-    "ForcingParameterProtocol",
-    "FunctionalGroupParameterProtocol",
     # Coordinate authority
     "CoordinateAuthority",
-    "coordinate_authority",
+    # Labels
+    "CoordinatesLabels",
+    "ForcingLabels",
+    "ForcingName",
+    "ForcingParameterProtocol",
+    "FunctionalGroupParameterProtocol",
+    "KernelParameterProtocol",
+    "ModelProtocol",
+    "SeapopymDims",
+    "SeapopymForcing",
+    # Core types
+    "SeapopymState",
     # Units registry
     "StandardUnitsRegistry",
+    "TemplateProtocol",
+    "coordinate_authority",
 ]

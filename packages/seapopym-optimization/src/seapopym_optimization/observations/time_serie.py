@@ -6,7 +6,6 @@ import logging
 from dataclasses import dataclass
 
 from seapopym.standard.labels import CoordinatesLabels
-
 from seapopym_optimization.observations.observation import Observation
 
 logger = logging.getLogger(__name__)
@@ -14,8 +13,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass(kw_only=True)
 class TimeSeriesObservation(Observation):
-    """
-    The structure used to store the observations as a time series.
+    """The structure used to store the observations as a time series.
 
     Meaning that the observation is a time series of biomass values at a given location and layer.
     """

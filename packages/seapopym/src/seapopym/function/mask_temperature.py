@@ -15,25 +15,26 @@ if TYPE_CHECKING:
 
 
 def mask_temperature(state: SeapopymState) -> xr.Dataset:
-    """
-    It uses the min_temperature.
+    """Compute the temperature mask based on minimum temperature requirements.
 
-    Depend on
-    ---------
-    - min_temperature()
-    - average_temperature()
+    The mask indicates where the average temperature experienced by the functional
+    group is greater than or equal to the minimum temperature required for the
+    cohort.
 
-    Input
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing average temperature by functional group and minimum temperature by cohort.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the temperature mask.
+
+    Notes
     -----
-    - min_temperature [cohort_age]
-    - average_temperature [functional_group, time, latitude, longitude]
-
-    Output
-    ------
-    - mask_temperature_by_cohort_by_functional_group [functional_group, time, latitude, longitude, cohort_age]
-
-    NOTE(Jules): Warning : average temperature by functional group (because of daily vertical migration) and not by
-    layer. We therefore have a function with a high cost in terms of computation and memory space.
+    This function involves a comparison between functional group average temperatures and
+    cohort-specific minimum temperatures, resulting in a potentially large boolean array.
 
     """
     average_temperature = state[ForcingLabels.avg_temperature_by_fgroup]
@@ -59,6 +60,7 @@ MaskTemperatureTemplate = template.template_unit_factory(
 MaskTemperatureKernel = kernel.kernel_unit_factory(
     name="mask_temperature", template=[MaskTemperatureTemplate], function=mask_temperature
 )
+"""Kernel to compute temperature mask."""
 
 MaskTemperatureKernelLight = kernel.kernel_unit_factory(
     name="mask_temperature_light",
@@ -66,3 +68,4 @@ MaskTemperatureKernelLight = kernel.kernel_unit_factory(
     function=mask_temperature,
     to_remove_from_state=[ForcingLabels.min_temperature],
 )
+"""Light Kernel for temperature mask (removes min temperature)."""

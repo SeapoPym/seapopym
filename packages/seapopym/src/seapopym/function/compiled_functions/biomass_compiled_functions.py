@@ -13,7 +13,25 @@ def biomass_euler_explicite(
     initial_conditions: np.ndarray | None,
     delta_time: np.floating | np.integer,
 ) -> np.ndarray:
-    """Euler explicite approximating of dB/dt = R - lambda B."""
+    """Euler explicite approximating of dB/dt = R - lambda B.
+
+    Parameters
+    ----------
+    recruited : np.ndarray
+        Recruited biomass [functional_group, time, Y, X].
+    mortality : np.ndarray
+        Mortality coefficient [functional_group, time, Y, X].
+    initial_conditions : np.ndarray | None
+        Initial biomass conditions [functional_group, Y, X]. If None, assumed 0.
+    delta_time : float | int
+        Time step size.
+
+    Returns
+    -------
+    np.ndarray
+        Computed biomass [functional_group, time, Y, X].
+
+    """
     initial_conditions = (
         np.zeros(recruited[:, 0, ...].shape, dtype=np.float64) if initial_conditions is None else initial_conditions
     )
@@ -38,7 +56,25 @@ def biomass_euler_implicite(
     initial_conditions: np.ndarray | None,
     delta_time: np.floating | np.integer,
 ) -> np.ndarray:
-    """Euler implicite approximating of dB/dt = R - lambda B."""
+    """Euler implicite approximating of dB/dt = R - lambda B.
+
+    Parameters
+    ----------
+    recruited : np.ndarray
+        Recruited biomass [functional_group, time, Y, X].
+    mortality : np.ndarray
+        Mortality coefficient [functional_group, time, Y, X].
+    initial_conditions : np.ndarray | None
+        Initial biomass conditions [functional_group, Y, X]. If None, assumed 0.
+    delta_time : float | int
+        Time step size.
+
+    Returns
+    -------
+    np.ndarray
+        Computed biomass [functional_group, time, Y, X].
+
+    """
     initial_conditions = (
         np.zeros(recruited[:, 0, ...].shape, dtype=np.float64) if initial_conditions is None else initial_conditions
     )

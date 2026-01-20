@@ -1,7 +1,4 @@
-"""
-A module that contains the base class for functional groups declaration and parameter management in optimization
-process.
-"""
+"""A module that contains the base class for functional groups declaration and parameter management in optimization process."""
 
 from __future__ import annotations
 
@@ -18,8 +15,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class Parameter:
-    """
-    The definition of a parameter to optimize.
+    """The definition of a parameter to optimize.
 
     Parameters
     ----------
@@ -85,8 +81,7 @@ class FunctionalGroupSet[T: AbstractFunctionalGroup]:
         return tuple(group.name for group in self.functional_groups)
 
     def unique_functional_groups_parameters_ordered(self: FunctionalGroupSet) -> dict[str, Parameter]:
-        """
-        Return the unique optimized parameters of all functional groups in the order of declaration.
+        """Return the unique optimized parameters of all functional groups in the order of declaration.
 
         Used to setup toolbox for optimization algorithms.
         """
@@ -98,8 +93,8 @@ class FunctionalGroupSet[T: AbstractFunctionalGroup]:
         return unique_params
 
     def generate(self: FunctionalGroupSet, x: Sequence[float]) -> list[T]:
-        """
-        Generate a list of dictionaries representing the functional groups with their parameters values.
+        """Generate a list of dictionaries representing the functional groups with their parameters values.
+
         The order of the parameters is defined by the `unique_functional_groups_parameters_ordered` method.
         The input `x` should match the order of the parameters returned by that method.
         It is used by the `configuration_generator` to generate the model.

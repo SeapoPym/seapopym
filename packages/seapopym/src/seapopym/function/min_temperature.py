@@ -16,26 +16,24 @@ if TYPE_CHECKING:
 
 
 def min_temperature_by_cohort(state: SeapopymState) -> xr.Dataset:
-    """
-    Define the minimal temperature of a cohort to be recruited.
+    """Define the minimal temperature of a cohort to be recruited.
 
-    Input
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing mean timestep, TR_0 and Gamma_TR parameters.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing minimum temperature by cohort.
+
+    Notes
     -----
-    - mean_timestep [functional_group, cohort_age]
-    - tr_max [functional_group]
-    - tr_rate [functional_group]
-
-    Output
-    ------
-    - min_temperature [functional_group, cohort_age] : a datarray with cohort_age as coordinate and
-    minimum temperature as value.
-
-    Note:
-    ----
     The minimal temperature for recruitment is defined as:
-    - Temperature = log(Tau_r / Tau_r_0) / Gamma_Tau_r
+    Temperature = log(Tau_r / Tau_r_0) / Gamma_Tau_r
     Which is calculated from the equation Tau_r = Tau_r_0 * exp(Gamma_Tau_r * Temperature)
-    Where Tau_r is equal to the cohorte age (delta_t -> Tau_r_0).
+    Where Tau_r is equal to the cohort age.
 
     """
     min_temperature = (
@@ -55,5 +53,6 @@ MinTemperatureByCohortTemplate = template.template_unit_factory(
 )
 
 MinTemperatureByCohortKernel = kernel.kernel_unit_factory(
-    name="mortality_field", template=[MinTemperatureByCohortTemplate], function=min_temperature_by_cohort
+    name="min_temperature_by_cohort", template=[MinTemperatureByCohortTemplate], function=min_temperature_by_cohort
 )
+"""Kernel to compute minimum temperature by cohort."""

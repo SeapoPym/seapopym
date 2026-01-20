@@ -15,8 +15,7 @@ if TYPE_CHECKING:
 
 
 def apply_survival_rate_to_recruitment(state: SeapopymState) -> xr.Dataset:
-    """
-    Apply survival rate to recruited biomass.
+    """Apply survival rate to recruited biomass.
 
     Multiply the recruited biomass by the survival rate to account for
     mortality effects from ocean acidification and temperature.
@@ -35,6 +34,7 @@ def apply_survival_rate_to_recruitment(state: SeapopymState) -> xr.Dataset:
     ----------
     - recruited (from production functions)
     - survival_rate (from survival_rate_bednarsek function)
+
     """
     recruited = state[ForcingLabels.recruited]
     survival_rate = state[ForcingLabels.survival_rate]
@@ -55,3 +55,4 @@ ApplySurvivalRateToRecruitmentKernel = kernel.kernel_unit_factory(
     template=[RecruitedAdjustedTemplate],
     function=apply_survival_rate_to_recruitment,
 )
+"""Kernel to apply survival rate to recruited biomass."""

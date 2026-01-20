@@ -12,8 +12,7 @@ from seapopym.function.compiled_functions.production_compiled_functions import a
 def beverton_holt(
     biomass: np.ndarray, density_dependance_parameter_a: float, density_dependance_parameter_b: float
 ) -> np.ndarray:
-    """
-    Normalized Beverton-Holt function for spawning stock biomass.
+    """Normalized Beverton-Holt function for spawning stock biomass.
 
     Returns a suitability coefficient between 0 and 1 that modulates primary production
     based on spawning stock biomass (SSB).
@@ -53,8 +52,7 @@ def biomass_beverton_holt(
     initial_conditions_biomass: np.ndarray | None = None,
     initial_conditions_recruitment: np.ndarray | None = None,
 ) -> np.ndarray:
-    """
-    Compute biomass using Beverton-Holt stock-recruitment with coupled production-biomass dynamics.
+    """Compute biomass using Beverton-Holt stock-recruitment with coupled production-biomass dynamics.
 
     Combines production recruitment (with cohort aging) and biomass integration in a single
     temporal loop due to the time-dependent coupling via the Beverton-Holt relationship.
@@ -157,8 +155,7 @@ def biomass_beverton_holt_with_survival_rate(
     initial_conditions_biomass: np.ndarray | None = None,
     initial_conditions_recruitment: np.ndarray | None = None,
 ) -> np.ndarray:
-    """
-    Compute biomass using Beverton-Holt stock-recruitment with survival rate adjustment.
+    """Compute biomass using Beverton-Holt stock-recruitment with survival rate adjustment.
 
     Extends the basic Beverton-Holt implementation by applying a survival rate
     to the recruited biomass before integration. This accounts for mortality effects

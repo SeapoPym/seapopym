@@ -16,21 +16,21 @@ if TYPE_CHECKING:
 
 
 def average_temperature(state: SeapopymState) -> xr.Dataset:
-    """
-    Depend on:
-    - compute_daylength
-    - mask_by_fgroup.
+    """Compute the average temperature experienced by each functional group.
 
-    Input
-    -----
-    - mask_by_fgroup()      [time, latitude, longitude]
-    - compute_daylength()   [functional_group, latitude, longitude] in day
-    - day/night_layer       [functional_group]
-    - temperature           [time, latitude, longitude, layer] in degC
+    The average temperature is calculated based on the day length and the
+    layer positions (day and night) of the functional groups.
 
-    Output
-    ------
-    - avg_temperature [functional_group, time, latitude, longitude] in degC
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing temperature, day length, masks and layer configuration.
+
+    Returns
+    -------
+    xr.Dataset
+        A dataset containing the average temperature by functional group.
+
     """
     temperature = state[ForcingLabels.temperature]
     day_length = state[ForcingLabels.day_length]
@@ -64,6 +64,7 @@ AverageTemperatureTemplate = template.template_unit_factory(
 AverageTemperatureKernel = kernel.kernel_unit_factory(
     name="average_temperature", template=[AverageTemperatureTemplate], function=average_temperature
 )
+"""Kernel to compute average temperature by functional group."""
 
 AverageTemperatureKernelLight = kernel.kernel_unit_factory(
     name="average_temperature_light",
@@ -71,3 +72,4 @@ AverageTemperatureKernelLight = kernel.kernel_unit_factory(
     function=average_temperature,
     to_remove_from_state=[ForcingLabels.temperature, ForcingLabels.day_length, ForcingLabels.mask_by_fgroup],
 )
+"""Light Kernel for average temperature (removes source fields)."""

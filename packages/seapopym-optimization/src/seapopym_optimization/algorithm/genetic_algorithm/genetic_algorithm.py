@@ -28,8 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 def individual_creator(cost_function_weight: tuple[Number]) -> type:
-    """
-    Create a custom individual class for DEAP genetic algorithms.
+    """Create a custom individual class for DEAP genetic algorithms.
 
     This individual class inherits from `list` and includes a fitness attribute. It is redefined to work with the
     Dask framework, which does not support the default DEAP individual structure created with `deap.creator.create`.
@@ -52,8 +51,9 @@ def individual_creator(cost_function_weight: tuple[Number]) -> type:
 
 @dataclass
 class GeneticAlgorithmParameters:
-    """
-    The structure used to store the genetic algorithm parameters. Can generate the toolbox with default
+    """The structure used to store the genetic algorithm parameters.
+
+    Can generate the toolbox with default parameters.
     parameters.
 
     Parameters
@@ -120,8 +120,7 @@ class GeneticAlgorithmParameters:
 
 @dataclass
 class GeneticAlgorithm:
-    """
-    Genetic algorithm for optimizing SeapoPym models.
+    """Genetic algorithm for optimizing SeapoPym models.
 
     By default, the process order is SCM: Select, Cross, Mutate.
 
@@ -201,8 +200,8 @@ class GeneticAlgorithm:
             self.logbook.to_parquet(self.save)
 
     def _evaluate(self: GeneticAlgorithm, individuals: Sequence, generation: int) -> Logbook:
-        """
-        Evaluate individuals by delegating to the evaluation strategy.
+        """Evaluate individuals by delegating to the evaluation strategy.
+
         Creates and returns a Logbook for the current generation.
         """
 
@@ -235,61 +234,6 @@ class GeneticAlgorithm:
             parameter_names=parameter_names,
             fitness_names=fitness_names,
         )
-
-    # def _initialization(self: GeneticAlgorithm) -> tuple[int, list[list]]:
-    #     """Initialize the genetic algorithm. If a logbook is provided, it will load the last generation."""
-
-    #     def create_first_generation() -> tuple[Literal[1], list[list]]:
-    #         """Create the first generation (i.e. generation `0`) of individuals."""
-    #         new_generation = 0
-    #         population = self.toolbox.population(n=self.meta_parameter.POP_SIZE)
-    #         logbook = self._evaluate(individuals=population, generation=new_generation)
-    #         self.update_logbook(logbook)
-    #         next_generation = new_generation + 1
-    #         return next_generation, population
-
-    #     def create_population_from_logbook(generation_data: Logbook) -> list[list]:
-    #         """Create a population from Logbook DataFrame for a specific generation."""
-    #         individuals = []
-
-    #         # Extract parameters and fitness columns
-    #         params_df = generation_data.xs(LogbookCategory.PARAMETER, level=0, axis=1)
-    #         fitness_df = generation_data.xs(LogbookCategory.FITNESS, level=0, axis=1)
-
-    #         for idx in range(len(generation_data)):
-    #             # Create individual with parameters
-    #             individual_params = params_df.iloc[idx].tolist()
-    #             individual = self.toolbox.Individual(individual_params)
-
-    #             # Set fitness if available (check if all fitness values are not NaN)
-    #             ind_fitness = fitness_df.iloc[idx].values
-    #             if not np.any(np.isnan(ind_fitness)):
-    #                 individual.fitness.values = tuple(ind_fitness)
-
-    #             individuals.append(individual)
-
-    #         return individuals
-
-    #     if self.logbook is None:
-    #         return create_first_generation()
-
-    #     logger.info("Logbook found. Loading last generation.")
-
-    #     last_generation = max(self.logbook.generations)
-    #     generation_data = self.logbook.loc[last_generation]
-
-    #     population = create_population_from_logbook(generation_data)
-
-    #     # Check if re-evaluation is needed
-    #     weighted_fitness = generation_data[(LogbookCategory.WEIGHTED_FITNESS, LogbookCategory.WEIGHTED_FITNESS)]
-    #     if np.any(np.isnan(weighted_fitness.values)):
-    #         logger.warning("Some individuals in the logbook have no fitness values. Re-evaluating the population.")
-    #         logbook = self._evaluate(population, last_generation)
-    #         # Replace the generation data in the logbook
-    #         self.logbook = None
-    #         self.update_logbook(logbook)
-
-    #     return last_generation + 1, population
 
     def _initialization(self: GeneticAlgorithm) -> tuple[int, list[list]]:
         """Initialize the genetic algorithm. If a logbook is provided, it will load the last generation."""

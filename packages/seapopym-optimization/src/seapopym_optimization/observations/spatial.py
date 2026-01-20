@@ -6,7 +6,6 @@ import logging
 from dataclasses import dataclass
 
 from seapopym.standard.labels import CoordinatesLabels
-
 from seapopym_optimization.observations.observation import Observation
 
 logger = logging.getLogger(__name__)
@@ -14,8 +13,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass(kw_only=True)
 class SpatialObservation(Observation):
-    """
-    The structure used to store the observations as a spatial dataset.
+    """The structure used to store the observations as a spatial dataset.
 
     Meaning that the observation is a set of biomass values at given locations and times.
     The observation data must be an xarray.DataArray with a single dimension (e.g. "index" or "obs_id")

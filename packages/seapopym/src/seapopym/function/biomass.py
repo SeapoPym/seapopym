@@ -1,5 +1,5 @@
-"""
-This module contains the post-production function used to compute the biomass.
+"""This module contains the post-production function used to compute the biomass.
+
 They are run after the production process.
 """
 
@@ -20,10 +20,34 @@ if TYPE_CHECKING:
 
 
 def biomass(state: SeapopymState) -> xr.Dataset:
-    """Wrap the biomass computation arround the Numba function `biomass_sequence`."""
+    """Wrap the biomass computation around the Numba function.
+
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing recruited biomass and mortality.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the computed biomass.
+
+    """
 
     def _format_fields(forcing: SeapopymForcing) -> SeapopymForcing:
-        """Format the fields to be used in the biomass computation."""
+        """Format the fields to be used in the biomass computation.
+
+        Parameters
+        ----------
+        forcing : SeapopymForcing
+            Input forcing data.
+
+        Returns
+        -------
+        SeapopymForcing
+            Formatted data as numpy array (float64, NaNs replaced by 0).
+
+        """
         return np.nan_to_num(forcing.data, 0.0).astype(np.float64)
 
     state = CoordinatesLabels.order_data(state)
@@ -53,6 +77,7 @@ BiomassTemplate = template.template_unit_factory(
 
 
 BiomassKernel = kernel.kernel_unit_factory(name="biomass", template=[BiomassTemplate], function=biomass)
+"""Kernel to compute biomass."""
 
 BiomassKernelLight = kernel.kernel_unit_factory(
     name="biomass_light",
@@ -60,3 +85,4 @@ BiomassKernelLight = kernel.kernel_unit_factory(
     function=biomass,
     to_remove_from_state=[ForcingLabels.recruited, ForcingLabels.mortality_field],
 )
+"""Light Kernel for biomass (removes recruited and mortality field)."""

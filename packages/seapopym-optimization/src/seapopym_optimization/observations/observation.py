@@ -9,6 +9,7 @@ from enum import StrEnum
 import pandas as pd
 import xarray as xr
 from pandas.tseries.frequencies import to_offset
+
 from seapopym.standard.units import StandardUnitsLabels
 
 logger = logging.getLogger(__name__)

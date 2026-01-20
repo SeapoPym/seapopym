@@ -15,7 +15,28 @@ import pint_xarray  # noqa: F401
 
 
 class StandardUnitsLabels(StrEnum):
-    """Unit of measurement as used in the model."""
+    """Unit of measurement as used in the model.
+
+    Attributes
+    ----------
+    height : str
+        Unit for height/distance (meter).
+    weight : str
+        Unit for weight/mass (gram).
+    temperature : str
+        Unit for temperature (celsius).
+    time : str
+        Unit for time (day).
+    biomass : str
+        Unit for biomass density (gram / meter**2).
+    production : str
+        Unit for production rate (gram / meter**2 / day).
+    acidity : str
+        Unit for acidity (dimensionless).
+    concentration : str
+        Unit for concentration (gram / meter**3).
+
+    """
 
     height = "meter"
     weight = "gram"
@@ -27,18 +48,31 @@ class StandardUnitsLabels(StrEnum):
     concentration = "gram / meter**3"
 
     def __init__(self: StandardUnitsLabels, unit_as_str: str) -> None:
-        """Prevent the instantiation of this class."""
+        """Prevent the instantiation of this class.
+
+        Parameters
+        ----------
+        unit_as_str : str
+            The string representation of the unit.
+
+        """
         self._units = pint.application_registry(unit_as_str).units
 
     @property
     def units(self: StandardUnitsLabels) -> pint.Unit:
-        """Convert the string unit to the equivalent pint unit."""
+        """Convert the string unit to the equivalent pint unit.
+
+        Returns
+        -------
+        pint.Unit
+            The pint Unit object.
+
+        """
         return self._units
 
 
 class StandardUnitsRegistry:
-    """
-    Centralized registry for units management and conversion.
+    """Centralized registry for units management and conversion.
 
     Provides a clean API for unit handling, formatting, and validation
     to replace scattered unit conversions throughout the codebase.
@@ -79,8 +113,7 @@ class StandardUnitsRegistry:
 
     @staticmethod
     def format_unit_string(unit_label: StandardUnitsLabels) -> str:
-        """
-        Format a unit label to standardized string representation.
+        """Format a unit label to standardized string representation.
 
         Converts a StandardUnitsLabels enum value to its string representation
         as formatted by the pint units library. This ensures consistent unit
@@ -113,13 +146,13 @@ class StandardUnitsRegistry:
         Note:
             This method is the recommended way to get unit strings for xarray
             attributes, replacing direct access to StandardUnitsLabels.units
+
         """
         return str(unit_label.units)
 
     @staticmethod
     def get_unit_attrs(unit_label: StandardUnitsLabels, **overrides: Any) -> dict[str, str]:
-        """
-        Get standardized unit attributes for xarray DataArrays.
+        """Get standardized unit attributes for xarray DataArrays.
 
         Creates a dictionary of attributes suitable for xarray DataArray.attrs,
         starting with the properly formatted units and allowing additional
@@ -172,6 +205,7 @@ class StandardUnitsRegistry:
         Note:
             This is the recommended way to create xarray attributes with units,
             ensuring consistency across all DataArrays in the system.
+
         """
         attrs = {"units": StandardUnitsRegistry.format_unit_string(unit_label)}
         attrs.update(overrides)
@@ -179,8 +213,7 @@ class StandardUnitsRegistry:
 
     @staticmethod
     def validate_unit_compatibility(value: Any, expected_unit: StandardUnitsLabels) -> bool:
-        """
-        Validate that a value has compatible units.
+        """Validate that a value has compatible units.
 
         Performs unit compatibility validation by comparing the units attribute
         of a value object against an expected StandardUnitsLabels enum value.
@@ -247,6 +280,7 @@ class StandardUnitsRegistry:
         Note:
             Currently performs exact string matching. Compatible but differently
             formatted units (e.g., 'deg_C' vs 'degree_Celsius') will return False.
+
         """
         try:
             if not hasattr(value, "units"):
@@ -265,8 +299,7 @@ class StandardUnitsRegistry:
 
     @staticmethod
     def get_supported_units() -> tuple[StandardUnitsLabels, ...]:
-        """
-        Get all supported unit labels.
+        """Get all supported unit labels.
 
         Returns a tuple containing all available StandardUnitsLabels enum values,
         providing a complete inventory of units supported by the system.
@@ -309,5 +342,6 @@ class StandardUnitsRegistry:
             The returned tuple is immutable and reflects the current state
             of the StandardUnitsLabels enum. Changes to the enum will be
             automatically reflected in subsequent calls.
+
         """
         return tuple(StandardUnitsLabels)

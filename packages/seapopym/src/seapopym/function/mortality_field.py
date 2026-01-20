@@ -16,30 +16,25 @@ if TYPE_CHECKING:
 
 
 def mortality_field(state: SeapopymState) -> xr.Dataset:
-    """
-    Use the relation between temperature and mortality to generate the mortality field.
+    """Use the relation between temperature and mortality to generate the mortality field.
 
-    Depend on
-    ---------
-    - average_temperature()
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing average temperature and mortality configuration.
 
-    Input
-    ------
-    - average_temperature [functional_group, time, latitude, longitude]
-    - lambda_temperature_0 [functional_group]
-    - gamma_lambda_temperature [functional_group]
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the mortality field.
 
-    Output
-    ------
-    - mortality_field [functional_group, time, latitude, longitude]
-
-    Note:
-    ----
+    Notes
+    -----
     The mortality field is computed as follow:
-    - lambda = lambda_temperature_0 * exp(gamma_lambda_temperature * T)
+    lambda = lambda_temperature_0 * exp(gamma_lambda_temperature * T)
 
     Which is equivalent to:
-    - tau_m = tau_m_0 * exp(gamma_tau_m * T)
+    tau_m = tau_m_0 * exp(gamma_tau_m * T)
     Where tau_m is equal to 1/lambda, tau_m_0 is equal to 1/lambda_temperature_0 and gamma_tau_m is equal to -gamma_lambda_temperature.
 
     """
@@ -63,6 +58,7 @@ MortalityFieldTemplate = template.template_unit_factory(
 MortalityFieldKernel = kernel.kernel_unit_factory(
     name="mortality_field", template=[MortalityFieldTemplate], function=mortality_field
 )
+"""Kernel to compute mortality field."""
 
 MortalityFieldKernelLight = kernel.kernel_unit_factory(
     name="mortality_field_light",
@@ -70,3 +66,4 @@ MortalityFieldKernelLight = kernel.kernel_unit_factory(
     function=mortality_field,
     to_remove_from_state=[ForcingLabels.avg_temperature_by_fgroup],
 )
+"""Light Kernel for mortality field (removes average temperature)."""

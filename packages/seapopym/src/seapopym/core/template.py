@@ -1,5 +1,4 @@
-"""
-Functions used to generalize the usage of map_blocks function in the model.
+"""Functions used to generalize the usage of map_blocks function in the model.
 
 Notes
 -----
@@ -34,17 +33,31 @@ if TYPE_CHECKING:
 
 @frozen(kw_only=True)
 class BaseTemplate:
-    """
-    Base class for template generation.
+    """Base class for template generation.
 
-    Implements TemplateProtocol via duck typing.
+    Implements TemplateProtocol via duck typing. This class defines the interface
+    for generating xarray objects (DataArray or Dataset) that serve as templates
+    for model computations.
     """
 
     def generate(self: BaseTemplate, state: SeapopymState) -> SeapopymForcing | SeapopymState:
-        """
-        Generate an empty xr.DataArray/Dataset.
+        """Generate an empty xr.DataArray/Dataset.
 
-        Must be implemented by subclasses.
+        Parameters
+        ----------
+        state : SeapopymState
+            The input state of the model, used to determine dimensions and coordinates.
+
+        Returns
+        -------
+        SeapopymForcing | SeapopymState
+            The generated template object.
+
+        Raises
+        ------
+        NotImplementedError
+            If the subclass does not implement this method.
+
         """
         msg = f"Subclass {self.__class__.__name__} must implement generate method"
         raise NotImplementedError(msg)
@@ -52,6 +65,23 @@ class BaseTemplate:
 
 @frozen(kw_only=True)
 class TemplateUnit(BaseTemplate):
+    """A unit defining a single variable template.
+
+    Attributes
+    ----------
+    name : str
+        The name of the variable.
+    attrs : dict
+        Metadata attributes for the variable.
+    dims : Iterable[str | xr.DataArray]
+        Dimensions of the variable.
+    chunks : dict[str, int] | None
+        Chunk sizes for Dask arrays.
+    dtype : type | None
+        Data type of the variable.
+
+    """
+
     name: ForcingName
     attrs: ForcingAttrs
     dims: Iterable[SeapopymDims | SeapopymForcing] = field(validator=validators.instance_of(Iterable))
@@ -60,13 +90,45 @@ class TemplateUnit(BaseTemplate):
 
     @dims.validator
     def _validate_dims(self, attribute, value) -> None:
-        """Check if the dimensions are either SeapopymDims or SeapopymForcing objects."""
+        """Check if the dimensions are either SeapopymDims or SeapopymForcing objects.
+
+        Parameters
+        ----------
+        attribute : attr.Attribute
+            The attribute being validated.
+        value : Iterable
+            The value of the attribute.
+
+        Raises
+        ------
+        TypeError
+            If a dimension is not a valid type.
+
+        """
         for dim in self.dims:
             if not isinstance(dim, (CoordinatesLabels, str, xr.DataArray)):
                 msg = f"Dimension {dim} must be either a SeapopymDims or SeapopymForcing object."
                 raise TypeError(msg)
 
     def generate(self: TemplateUnit, state: SeapopymState) -> SeapopymForcing:
+        """Generate a DataArray template based on the state.
+
+        Parameters
+        ----------
+        state : SeapopymState
+            The model state.
+
+        Returns
+        -------
+        SeapopymForcing
+            The generated DataArray template.
+
+        Raises
+        ------
+        ValueError
+            If state is missing or if a required dimension is not in the state.
+
+        """
         for dim in self.dims:
             if isinstance(dim, (CoordinatesLabels, str)) and state is None:
                 msg = "You need to provide the state of the model to generate the template."
@@ -106,8 +168,28 @@ def template_unit_factory(
     dims: Iterable[SeapopymDims | SeapopymForcing],
     dtype: type | None = None,
 ) -> type[BaseTemplate]:
+    """Create a custom TemplateUnit class.
+
+    Parameters
+    ----------
+    name : str
+        The name of the template unit.
+    attributs : dict
+        Attributes for the generated DataArray.
+    dims : Iterable
+        Dimensions of the DataArray.
+    dtype : type, optional
+        Data type.
+
+    Returns
+    -------
+    type[BaseTemplate]
+        A custom class inheriting from TemplateUnit.
+
+    """
+
     class CustomTemplateUnit(TemplateUnit):
-        def __init__(self, chunk: dict):
+        def __init__(self, chunk: dict) -> None:
             super().__init__(name=name, attrs=attributs, dims=dims, chunks=chunk, dtype=dtype)
 
     CustomTemplateUnit.__name__ = name
@@ -116,9 +198,31 @@ def template_unit_factory(
 
 @frozen(kw_only=True)
 class Template(BaseTemplate):
+    """A collection of TemplateUnits defining a Dataset template.
+
+    Attributes
+    ----------
+    template_unit : Iterable[TemplateUnit]
+        The units to include in the template.
+
+    """
+
     template_unit: Iterable[TemplateUnit]
 
     def generate(self: Template, state: SeapopymState) -> SeapopymState:
+        """Generate a Dataset template from the contained units.
+
+        Parameters
+        ----------
+        state : SeapopymState
+            The model state.
+
+        Returns
+        -------
+        SeapopymState
+            The generated Dataset template.
+
+        """
         results = {template.name: template.generate(state) for template in self.template_unit}
         dataset = xr.Dataset(results)
 

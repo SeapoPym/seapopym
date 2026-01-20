@@ -1,5 +1,4 @@
-"""
-Factory for creating configured GeneticAlgorithm instances.
+"""Factory for creating configured GeneticAlgorithm instances.
 
 This module provides factory methods to simplify the creation
 of GeneticAlgorithm instances with different evaluation strategies,
@@ -32,8 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 class GeneticAlgorithmFactory:
-    """
-    Factory for creating GeneticAlgorithm instances with different configurations.
+    """Factory for creating GeneticAlgorithm instances with different configurations.
 
     This factory simplifies genetic algorithm creation by encapsulating
     the configuration logic for evaluation strategies and distribution.
@@ -48,8 +46,7 @@ class GeneticAlgorithmFactory:
     def create_sequential(
         meta_parameter: GeneticAlgorithmParameters, cost_function: CostFunctionProtocol, **kwargs: Any
     ) -> GeneticAlgorithm:
-        """
-        Create a GA in sequential mode.
+        """Create a GA in sequential mode.
 
         Simplest evaluation mode, suitable for small populations
         or situations where parallelization is not necessary.
@@ -87,8 +84,7 @@ class GeneticAlgorithmFactory:
     def create_parallel(
         meta_parameter: GeneticAlgorithmParameters, cost_function: CostFunctionProtocol, n_jobs: int = -1, **kwargs: Any
     ) -> GeneticAlgorithm:
-        """
-        Create a GA in parallel mode using multiprocessing.
+        """Create a GA in parallel mode using multiprocessing.
 
         Uses ProcessPoolExecutor to evaluate individuals across
         multiple CPU cores for improved performance.
@@ -131,8 +127,7 @@ class GeneticAlgorithmFactory:
         client: Client,
         **kwargs: Any,
     ) -> GeneticAlgorithm:
-        """
-        Create a GA in distributed mode with Dask.
+        """Create a GA in distributed mode with Dask.
 
         Automatically detects if data is already distributed (Futures) and distributes
         if necessary. Uses Dask client.map() with distributed data to evaluate

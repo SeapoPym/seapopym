@@ -25,10 +25,9 @@ if TYPE_CHECKING:
 def acidity_functional_group_unit_generator(
     functional_group: AcidityFunctionalGroup,
 ) -> FunctionalGroupUnit:
-    """
-    Allows the transformation of a functional group as defined in optimization into a functional group that can be used
-    by SeapoPym.
+    """Transform optimization functional groups for SeapoPym usage.
 
+    Converts functional groups defined during optimization into a format compatible with SeapoPym.
     Based on `FunctionalGroupUnitGeneratorProtocol`.
     """
     return FunctionalGroupUnit(
@@ -50,8 +49,7 @@ def acidity_functional_group_unit_generator(
 
 
 class AcidityConfigurationGenerator:
-    """
-    Generate the configuration used to create a Acidity model in SeapoPym.
+    """Generate the configuration used to create a Acidity model in SeapoPym.
 
     Based on `ConfigurationGeneratorProtocol`.
     """

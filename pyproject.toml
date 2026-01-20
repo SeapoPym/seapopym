@@ -20,7 +20,8 @@ dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "ruff>=0.1.0",
-    "mypy>=1.0.0",
+    "basedpyright>=1.1.0",
+    "pre-commit>=4.5.1",
 ]
 docs = [
     "mkdocs>=1.5.0",
@@ -36,4 +37,76 @@ build-backend = "hatchling.build"
 [tool.uv]
 package = false
 
+# ══════════════════════════════════════════════════════════════════════════════
+# RUFF CONFIGURATION
+# ══════════════════════════════════════════════════════════════════════════════
 
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+src = ["packages/seapopym/src", "packages/seapopym-optimization/src"]
+
+[tool.ruff.lint]
+select = ["ALL"]
+
+ignore = [
+    # ─── Formatter conflicts (recommandation officielle Ruff) ───
+    "E501",    # Line too long → géré par ruff format
+    "COM812",  # Missing trailing comma → géré par ruff format
+    "ISC001",  # Implicit string concat → conflit avec ruff format
+
+    # ─── Documentation (à activer progressivement) ───
+    "D1",      # Missing docstrings (D100-D107) — trop bruyant au début
+    "D203",    # Conflit avec D211 (one-blank-line-before-class)
+    "D213",    # Conflit avec D212 (multi-line-summary-second-line)
+    "D401",    # Non-imperative mood — style subjectif
+    "D404",    # Docstring starts with "This" — style subjectif
+
+    # ─── Annotations (typing progressif accepté) ───
+    "ANN1",    # Missing type annotation for self/cls
+    "ANN401",  # Dynamically typed expressions (Any) autorisé
+
+    # ─── Workflow (TODO/FIXME utiles en recherche) ───
+    "FIX",     # Autorise les commentaires TODO/FIXME
+    "TD",      # Pas de format strict pour les TODO
+    "ERA",     # Autorise le code commenté (utile en recherche)
+
+    # ─── Frameworks non utilisés ───
+    "DJ",      # Django
+    "AIR",     # Airflow
+    "FAST",    # FastAPI
+
+    # ─── Autres ───
+    "CPY",     # Copyright headers — géré autrement si besoin
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["seapopym"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101"]  # assert autorisé dans les tests
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# BASEDPYRIGHT CONFIGURATION
+# ══════════════════════════════════════════════════════════════════════════════
+
+[tool.basedpyright]
+pythonVersion = "3.12"
+typeCheckingMode = "basic"
+venvPath = "."
+venv = ".venv"
+include = [
+    "packages/seapopym/src",
+    "packages/seapopym-optimization/src",
+]
+exclude = [
+    "**/__pycache__",
+    "**/node_modules",
+    "**/.venv",
+]
+reportMissingImports = "warning"
+reportMissingTypeStubs = "none"

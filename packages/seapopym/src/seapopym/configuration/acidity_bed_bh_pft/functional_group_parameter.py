@@ -1,4 +1,4 @@
-"""Functional group parameters for acidity model with Bednarsek mortality and Beverton-Holt recruitment."""
+"""Functional group parameters for acidity model with Bednarsek mortality, Beverton-Holt recruitment and PFT."""
 
 from functools import partial
 
@@ -13,44 +13,57 @@ from seapopym.standard.units import StandardUnitsLabels
 
 @frozen(kw_only=True)
 class FunctionalTypeParameter(acidity_bed_bh.FunctionalTypeParameter):
-    """
-    Functional type parameters with Bednarsek mortality and Beverton-Holt stock-recruitment.
+    """Functional type parameters including Phytoplankton Functional Types (PFT).
 
-    Extends the Bednarsek parameters with density-dependent recruitment via Beverton-Holt:
-    - Stock-recruitment: R = PP * (density_dependance_parameter_a * B) / (1 + density_dependance_parameter_b * B)
-    - Where B is biomass and PP is primary production
+    Extends the Bednarsek and Beverton-Holt parameters with PFT-based food efficiency:
+    - Weights for different phytoplankton types (pico, nano, micro)
+    - Half-saturation constant (ks) for food efficiency
+
+    Attributes
+    ----------
+    w_pico : pint.Quantity
+        Weight of picophytoplankton (dimensionless).
+    w_nano : pint.Quantity
+        Weight of nanophytoplankton (dimensionless).
+    w_micro : pint.Quantity
+        Weight of microphytoplankton (dimensionless).
+    ks : pint.Quantity
+        Half-saturation constant for food efficiency (concentration units).
+
     """
 
     w_pico: pint.Quantity = field(
-        validator=partial(verify_parameter_init, "dimensionless"),
+        alias=ConfigurationLabels.w_pico,
+        converter=partial(verify_parameter_init, unit="dimensionless", parameter_name=ConfigurationLabels.w_pico),
+        validator=validators.ge(0),
         metadata={
             "description": "Weight of picophytoplankton",
-            "unit": "dimensionless",
-            "label": ConfigurationLabels.w_pico,
         },
     )
     w_nano: pint.Quantity = field(
-        validator=partial(verify_parameter_init, "dimensionless"),
+        alias=ConfigurationLabels.w_nano,
+        converter=partial(verify_parameter_init, unit="dimensionless", parameter_name=ConfigurationLabels.w_nano),
+        validator=validators.ge(0),
         metadata={
             "description": "Weight of nanophytoplankton",
-            "unit": "dimensionless",
-            "label": ConfigurationLabels.w_nano,
         },
     )
     w_micro: pint.Quantity = field(
-        validator=partial(verify_parameter_init, "dimensionless"),
+        alias=ConfigurationLabels.w_micro,
+        converter=partial(verify_parameter_init, unit="dimensionless", parameter_name=ConfigurationLabels.w_micro),
+        validator=validators.ge(0),
         metadata={
             "description": "Weight of microphytoplankton",
-            "unit": "dimensionless",
-            "label": ConfigurationLabels.w_micro,
         },
     )
     ks: pint.Quantity = field(
-        validator=partial(verify_parameter_init, StandardUnitsLabels.concentration.units),
+        alias=ConfigurationLabels.ks,
+        converter=partial(
+            verify_parameter_init, unit=StandardUnitsLabels.concentration.units, parameter_name=ConfigurationLabels.ks
+        ),
+        validator=validators.ge(0),
         metadata={
-            "description": "Saturation constant for Bednarsek mortality",
-            "unit": StandardUnitsLabels.concentration.units,
-            "label": ConfigurationLabels.ks,
+            "description": "Saturation constant for food efficiency",
         },
     )
 

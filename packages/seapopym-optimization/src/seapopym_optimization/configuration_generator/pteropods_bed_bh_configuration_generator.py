@@ -5,9 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from seapopym.configuration.acidity import (
-    ForcingParameter,
-)
 from seapopym.configuration.acidity_bed_bh import (
     AcidityBedBHConfiguration,
     FunctionalGroupParameter,
@@ -23,16 +20,18 @@ from seapopym.model import AcidityBedBHSurvivalModel
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from seapopym.configuration.acidity import (
+        ForcingParameter,
+    )
     from seapopym_optimization.functional_group.pteropods_bed_bh_functional_groups import PteropodBedBHFunctionalGroup
 
 
 def pteropod_bed_bh_functional_group_unit_generator(
     functional_group: PteropodBedBHFunctionalGroup,
 ) -> FunctionalGroupUnit:
-    """
-    Allows the transformation of a functional group as defined in optimization into a functional group that can be used
-    by SeapoPym.
+    """Transform optimization functional groups for SeapoPym usage.
 
+    Converts functional groups defined during optimization into a format compatible with SeapoPym.
     Based on `FunctionalGroupUnitGeneratorProtocol`.
     """
     return FunctionalGroupUnit(
@@ -59,8 +58,7 @@ def pteropod_bed_bh_functional_group_unit_generator(
 
 @dataclass
 class PteropodsBedBHConfigurationGenerator:
-    """
-    Generate the configuration used to create a Pteropod model in SeapoPym based on Bednarsek equations, and considering Berverton Holt density dependance.
+    """Generate the configuration used to create a Pteropod model in SeapoPym based on Bednarsek equations, and considering Berverton Holt density dependance.
 
     Based on `ConfigurationGeneratorProtocol`.
     """

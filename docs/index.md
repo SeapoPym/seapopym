@@ -23,22 +23,6 @@ This documentation focuses on the **No-Transport Model**, which simulates local 
 
 [Get Started →](getting-started/installation.md){ .md-button .md-button--primary }
 
-## Quick Example
-
-```python
-from seapopym.model import NoTransportModel
-
-# Configure and run model
-model = NoTransportModel(config)
-results = model.run()
-
-# Analyze results
-biomass = results['biomass']
-biomass.plot()
-```
-
-[Full Tutorial →](getting-started/quickstart.md){ .md-button .md-button--primary }
-
 ## Citation
 
 If you use SeapoPym in your research, please cite:

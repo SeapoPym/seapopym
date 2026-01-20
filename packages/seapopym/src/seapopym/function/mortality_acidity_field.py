@@ -16,24 +16,18 @@ if TYPE_CHECKING:
 
 
 def mortality_acidity_field(state: SeapopymState) -> xr.Dataset:
-    """
-    Use the relation between temperature, pH and mortality to generate the mortality field.
+    """Use the relation between temperature, pH and mortality to generate the mortality field.
 
-    Depend on
-    ---------
-    - average_temperature()
-    - acidity
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing average temperature, acidity and lambda parameters.
 
-    Input
-    ------
-    - average_temperature [functional_group, time, latitude, longitude]
-    - acidity [time, latitude, longitude] (pH)
-    - inv_lambda_max [functional_group]
-    - inv_lambda_rate [functional_group]
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the mortality field (lambda).
 
-    Output
-    ------
-    - mortality_field [functional_group, time, latitude, longitude]
     """
     average_temperature = state[ForcingLabels.avg_temperature_by_fgroup]
     average_acidity = state[ForcingLabels.avg_acidity_by_fgroup]
@@ -58,11 +52,11 @@ MortalityTemplate = template.template_unit_factory(
 MortalityTemperatureAcidityKernel = kernel.kernel_unit_factory(
     name="mortality_temperature_acidity", template=[MortalityTemplate], function=mortality_acidity_field
 )
+"""Kernel to compute mortality field from temperature and acidity."""
 
 
 def mortality_acidity_bed_field(state: SeapopymState) -> xr.Dataset:
-    """
-    Generate mortality field using Bednarsek et al. (2022) equation.
+    """Generate mortality field using Bednarsek et al. (2022) equation.
 
     Uses the linear relationship between temperature, pH and mortality from
     Bednarsek equation: mortality = lambda_0_bed + gamma_lambda_temperature_bed * T + gamma_lambda_acidity_bed * pH
@@ -102,3 +96,4 @@ def mortality_acidity_bed_field(state: SeapopymState) -> xr.Dataset:
 MortalityTemperatureAcidityBedKernel = kernel.kernel_unit_factory(
     name="mortality_temperature_acidity_bed", template=[MortalityTemplate], function=mortality_acidity_bed_field
 )
+"""Kernel to compute mortality field using Bednarsek equation."""

@@ -1,4 +1,4 @@
-"""Funcitons used to generate a landmask from any forcing data."""
+"""Functions used to generate a landmask from any forcing data."""
 
 from __future__ import annotations
 
@@ -15,12 +15,20 @@ if TYPE_CHECKING:
 
 
 def mask_by_fgroup(state: SeapopymState) -> xr.Dataset:
-    """
-    The `mask_by_fgroup` has at least 3 dimensions (lat, lon, layer) and is a boolean array.
+    """Compute the mask for each functional group based on their day and night layers.
 
-    Output
-    ------
-    - mask_by_fgroup  [functional_group, latitude, longitude] -> boolean
+    The mask is True if the cell is ocean (from global mask) at both day and night depths.
+
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing day/night layers and global mask.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the mask by functional group.
+
     """
     day_layers = state[ConfigurationLabels.day_layer]
     night_layers = state[ConfigurationLabels.night_layer]
@@ -58,6 +66,7 @@ MaskByFunctionalGroupTemplate = template.template_unit_factory(
 MaskByFunctionalGroupKernel = kernel.kernel_unit_factory(
     name="mask_by_fgroup", template=[MaskByFunctionalGroupTemplate], function=mask_by_fgroup
 )
+"""Kernel to compute mask by functional group."""
 
 MaskByFunctionalGroupKernelLight = kernel.kernel_unit_factory(
     name="mask_by_fgroup_light",
@@ -65,3 +74,4 @@ MaskByFunctionalGroupKernelLight = kernel.kernel_unit_factory(
     function=mask_by_fgroup,
     to_remove_from_state=[ForcingLabels.global_mask],
 )
+"""Light Kernel for mask by functional group (removes global mask)."""

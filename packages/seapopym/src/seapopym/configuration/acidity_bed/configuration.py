@@ -8,7 +8,14 @@ from seapopym.configuration.acidity_bed.functional_group_parameter import Functi
 
 @frozen(kw_only=True)
 class AcidityBedConfiguration(acidity.AcidityConfiguration):
-    """Configuration for the acidity model using Bednarsek mortality equation."""
+    """Configuration for the acidity model using Bednarsek mortality equation.
+
+    Attributes
+    ----------
+    functional_group : FunctionalGroupParameter
+        The functional group parameters for the Bednarsek acidity configuration.
+
+    """
 
     functional_group: FunctionalGroupParameter = field(
         metadata={"description": "The functional group parameters for the Bednarsek acidity configuration."}

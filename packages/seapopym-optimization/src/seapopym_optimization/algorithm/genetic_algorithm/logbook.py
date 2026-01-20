@@ -10,12 +10,16 @@ import pandas as pd
 import pandera.pandas as pa
 from pandera.typing import DataFrame
 
-from seapopym_optimization.functional_group.parameter_initialization import initialize_with_sobol_sampling
+from seapopym_optimization.functional_group.parameter_initialization import (
+    initialize_with_sobol_sampling,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from seapopym_optimization.functional_group.base_functional_group import FunctionalGroupSet
+    from seapopym_optimization.functional_group.base_functional_group import (
+        FunctionalGroupSet,
+    )
 
 
 class LogbookCategory(StrEnum):
@@ -71,7 +75,10 @@ logbook_schema = pa.DataFrameSchema(
     columns={
         (LogbookCategory.PARAMETER, ".*"): parameter_column_schema,
         (LogbookCategory.FITNESS, ".*"): fitness_column_schema,
-        (LogbookCategory.WEIGHTED_FITNESS, LogbookCategory.WEIGHTED_FITNESS): weighted_fitness_column_schema,
+        (
+            LogbookCategory.WEIGHTED_FITNESS,
+            LogbookCategory.WEIGHTED_FITNESS,
+        ): weighted_fitness_column_schema,
     },
     index=multiple_index_schema,
     strict=True,
@@ -79,8 +86,7 @@ logbook_schema = pa.DataFrameSchema(
 
 
 class Logbook(DataFrame[logbook_schema]):
-    """
-    Pandas-based logbook for tracking genetic algorithm optimization.
+    """Pandas-based logbook for tracking genetic algorithm optimization.
 
     Uses Pandera for strict validation.
 
@@ -107,8 +113,7 @@ class Logbook(DataFrame[logbook_schema]):
         parameter_names: list[str],
         fitness_names: list[str],
     ) -> Logbook:
-        """
-        Create a Logbook from a list of DEAP individuals.
+        """Create a Logbook from a list of DEAP individuals.
 
         Parameters
         ----------
@@ -130,13 +135,26 @@ class Logbook(DataFrame[logbook_schema]):
 
         """
         index = pd.MultiIndex.from_arrays(
-            [[generation] * len(individual), is_from_previous_generation, range(len(individual))],
-            names=[LogbookIndex.GENERATION, LogbookIndex.PREVIOUS_GENERATION, LogbookIndex.INDIVIDUAL],
+            [
+                [generation] * len(individual),
+                is_from_previous_generation,
+                range(len(individual)),
+            ],
+            names=[
+                LogbookIndex.GENERATION,
+                LogbookIndex.PREVIOUS_GENERATION,
+                LogbookIndex.INDIVIDUAL,
+            ],
         )
         columns = pd.MultiIndex.from_tuples(
             [(LogbookCategory.PARAMETER.value, name) for name in parameter_names]
             + [(LogbookCategory.FITNESS.value, name) for name in fitness_names]
-            + [(LogbookCategory.WEIGHTED_FITNESS.value, LogbookCategory.WEIGHTED_FITNESS.value)],
+            + [
+                (
+                    LogbookCategory.WEIGHTED_FITNESS.value,
+                    LogbookCategory.WEIGHTED_FITNESS.value,
+                )
+            ],
             names=["category", "name"],
         )
 
@@ -155,8 +173,7 @@ class Logbook(DataFrame[logbook_schema]):
         fitness_values: Sequence[Sequence[float]] | None = None,
         weighted_fitness: Sequence[float] | None = None,
     ) -> Logbook:
-        """
-        Create a Logbook from arrays.
+        """Create a Logbook from arrays.
 
         Parameters
         ----------
@@ -183,7 +200,11 @@ class Logbook(DataFrame[logbook_schema]):
         """
         index = pd.MultiIndex.from_arrays(
             [generation, is_from_previous_generation, range(len(individual))],
-            names=[LogbookIndex.GENERATION, LogbookIndex.PREVIOUS_GENERATION, LogbookIndex.INDIVIDUAL],
+            names=[
+                LogbookIndex.GENERATION,
+                LogbookIndex.PREVIOUS_GENERATION,
+                LogbookIndex.INDIVIDUAL,
+            ],
         )
         columns = pd.MultiIndex.from_tuples(
             [(LogbookCategory.PARAMETER, name) for name in parameter_names]
@@ -211,8 +232,7 @@ class Logbook(DataFrame[logbook_schema]):
         sample_number: int,
         fitness_names: list[str],
     ) -> Logbook:
-        """
-        Create a Logbook from Sobol samples.
+        """Create a Logbook from Sobol samples.
 
         Parameters
         ----------
@@ -240,8 +260,7 @@ class Logbook(DataFrame[logbook_schema]):
         )
 
     def append_new_generation(self: Logbook, new_generation: Logbook) -> Logbook:
-        """
-        Append a new generation to the logbook.
+        """Append a new generation to the logbook.
 
         Parameters
         ----------
@@ -262,7 +281,14 @@ class Logbook(DataFrame[logbook_schema]):
 
     @property
     def generations(self: Logbook) -> list[int]:
-        """Get list of generation numbers."""
+        """Get list of unique generation numbers in the logbook.
+
+        Returns
+        -------
+        list[int]
+            Sorted list of generation numbers.
+
+        """
         return self.index.get_level_values(LogbookIndex.GENERATION).unique().sort_values().tolist()
 
     def copy(self: Logbook) -> Logbook:

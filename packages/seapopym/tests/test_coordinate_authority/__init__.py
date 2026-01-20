@@ -1,1 +1,0 @@
-"""Tests for CoordinateAuthority implementation and integration."""

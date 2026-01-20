@@ -1,4 +1,4 @@
-"""Wrapper for the application of the transfert cooeficient to primary production. Use xarray.map_block."""
+"""Wrapper for the application of the transfert coefficient to primary production. Use xarray.map_block."""
 
 from __future__ import annotations
 
@@ -15,17 +15,18 @@ if TYPE_CHECKING:
 
 
 def primary_production_by_fgroup(state: SeapopymState) -> xr.Dataset:
-    """
-    It is equivalent to generate the fisrt cohort of pre-production.
+    """It is equivalent to generate the first cohort of pre-production.
 
-    Input
-    -----
-    - primary_production [time, latitude, longitude]
-    - functional_group_coefficient [functional_group]
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing primary production and energy transfer coefficients.
 
-    Output
-    ------
-    - primary_production [functional_group, time, latitude, longitude]
+    Returns
+    -------
+    xr.Dataset
+        A dataset containing primary production distributed by functional group.
+
     """
     primary_production = state[ForcingLabels.primary_production]
     pp_by_fgroup_gen = (i * primary_production for i in state[ConfigurationLabels.energy_transfert])
@@ -45,6 +46,7 @@ PrimaryProductionByFgroupKernel = kernel.kernel_unit_factory(
     template=[PrimaryProductionByFgroupTemplate],
     function=primary_production_by_fgroup,
 )
+"""Kernel for primary production by functional group."""
 
 PrimaryProductionByFgroupKernelLight = kernel.kernel_unit_factory(
     name="primary_production_by_fgroup_light",
@@ -52,3 +54,4 @@ PrimaryProductionByFgroupKernelLight = kernel.kernel_unit_factory(
     function=primary_production_by_fgroup,
     to_remove_from_state=[ForcingLabels.primary_production],
 )
+"""Light Kernel for primary production by functional group (removes source PP)."""

@@ -8,7 +8,6 @@ from functools import cached_property, partial
 from typing import TYPE_CHECKING
 
 import numpy as np
-import pint
 import xarray as xr
 from attrs import asdict, field, frozen, validators
 
@@ -18,14 +17,23 @@ from seapopym.standard.coordinate_authority import create_cohort_coordinate
 from seapopym.standard.labels import ConfigurationLabels, CoordinatesLabels
 
 if TYPE_CHECKING:
-    pass
+    import pint
 
 logger = logging.getLogger(__name__)
 
 
 @frozen(kw_only=True)
 class MigratoryTypeParameter:
-    """This data class is used to store the parameters liked to the migratory behavior of a single functional group."""
+    """This data class is used to store the parameters liked to the migratory behavior of a single functional group.
+
+    Attributes
+    ----------
+    day_layer : int
+        Layer position during day.
+    night_layer : int
+        Layer position during night.
+
+    """
 
     day_layer: int = field(
         alias=ConfigurationLabels.day_layer,
@@ -45,9 +53,19 @@ class MigratoryTypeParameter:
 
 @frozen(kw_only=True)
 class FunctionalTypeParameter:
-    """
-    This data class is used to store the parameters linked to the relation between temperature and functional
-    group.
+    """This data class is used to store the parameters linked to the relation between temperature and functional group.
+
+    Attributes
+    ----------
+    lambda_temperature_0 : pint.Quantity
+        Value of lambda when temperature is 0°C (1/day).
+    gamma_lambda_temperature : pint.Quantity
+        Rate of the inverse of the mortality (1/degC).
+    tr_0 : pint.Quantity
+        Maximum value of the recruitment age (i.e. when temperature is 0°C) (day).
+    gamma_tr : pint.Quantity
+        Sensibility of recruitment age to temperature (1/degC).
+
     """
 
     lambda_temperature_0: pint.Quantity = field(
@@ -80,7 +98,22 @@ class FunctionalTypeParameter:
 
 @frozen(kw_only=True)
 class FunctionalGroupUnit:
-    """Represent a functional group."""
+    """Represent a functional group.
+
+    Attributes
+    ----------
+    name : str
+        The name of the functional group.
+    energy_transfert : pint.Quantity
+        Energy transfert coefficient between primary production and functional group.
+    functional_type : FunctionalTypeParameter
+        Parameters linked to the relation between temperature and the functional group.
+    migratory_type : MigratoryTypeParameter
+        Parameters linked to the migratory behavior of the functional group.
+    cohort_timestep : list[int] | None
+        The number of timesteps in the cohort. Useful for cohorts aggregation. Last timestep must be 1.
+
+    """
 
     name: str = field(
         metadata={"description": "The name of the functional group."},
@@ -117,7 +150,23 @@ class FunctionalGroupUnit:
 
     @cohort_timestep.validator
     def check_cohort_timestep(self: FunctionalGroupUnit, attribute: str, value: list[int]) -> None:
-        """Check that the last cohort is equal to 1."""
+        """Check that the last cohort is equal to 1.
+
+        Parameters
+        ----------
+        attribute : str
+            The attribute name.
+        value : list[int]
+            The value of the attribute.
+
+        Raises
+        ------
+        TypeError
+            If value is not a list of integers or None.
+        ValueError
+            If the last element of the list is not 1.
+
+        """
         if not isinstance(value, Iterable | None):
             msg = f"The {attribute.name} must be a list of integers or None."
             raise TypeError(msg)
@@ -126,9 +175,26 @@ class FunctionalGroupUnit:
             raise ValueError(msg)
 
     def update_cohort_timestep(self: FunctionalGroupUnit, timestep: pint.Quantity) -> np.ndarray[pint.Quantity]:
-        """
-        This method updates the cohorts timesteps. The last cohort is always one timestep long and has an age equal
-        to tr_0, which represents the maximum age of the pre-production in the coldest water conditions.
+        """Update the cohorts timesteps.
+
+        The last cohort is always one timestep long and has an age equal to tr_0,
+        which represents the maximum age of the pre-production in the coldest water conditions.
+
+        Parameters
+        ----------
+        timestep : pint.Quantity
+            The model timestep.
+
+        Returns
+        -------
+        np.ndarray
+            Array of timesteps for each cohort.
+
+        Raises
+        ------
+        ValueError
+            If no valid timesteps are found.
+
         """
 
         def initialize_cohort_timestep() -> np.ndarray[pint.Quantity]:
@@ -168,10 +234,21 @@ class FunctionalGroupUnit:
         return check_validity()
 
     def age_to_dataset(self: FunctionalGroupUnit, timestep: int) -> xr.Dataset:
-        """
-        Computes the mean, minimum, and maximum age of the cohorts at each timestep. The last cohort is always
-        one timestep long and has an age equal to tr_0, which represents the maximum age of the pre-production
-        in the coldest water conditions.
+        """Computes the mean, minimum, and maximum age of the cohorts at each timestep.
+
+        The last cohort is always one timestep long and has an age equal to tr_0,
+        which represents the maximum age of the pre-production in the coldest water conditions.
+
+        Parameters
+        ----------
+        timestep : int
+            The model timestep duration (in days).
+
+        Returns
+        -------
+        xr.Dataset
+            Dataset containing cohort age statistics (mean, min, max, number of timesteps).
+
         """
         timesteps_number = self.update_cohort_timestep(timestep)
 
@@ -216,7 +293,16 @@ class FunctionalGroupUnit:
 
     @cached_property
     def parameter_to_dataset(self) -> xr.Dataset:
-        """Return the parameters of the functional group as a Dataset. This is used to create the SeapoPymState."""
+        """Return the parameters of the functional group as a Dataset.
+
+        This is used to create the SeapoPymState.
+
+        Returns
+        -------
+        xr.Dataset
+            Dataset containing functional group parameters.
+
+        """
         parameters = {
             ConfigurationLabels.fgroup_name: self.name,
             ConfigurationLabels.energy_transfert: self.energy_transfert,
@@ -226,9 +312,20 @@ class FunctionalGroupUnit:
         return xr.Dataset(parameters)
 
     def to_dataset(self: FunctionalGroupUnit, timestep: int) -> xr.Dataset:
-        """
-        This method is used to create the dataset of the functional group. It contains the parameters of the
-        functional group and the age of the cohorts.
+        """Create the dataset of the functional group.
+
+        It contains the parameters of the functional group and the age of the cohorts.
+
+        Parameters
+        ----------
+        timestep : int
+            The model timestep duration.
+
+        Returns
+        -------
+        xr.Dataset
+            Dataset combining parameters and cohort age information.
+
         """
         return xr.merge([self.parameter_to_dataset, self.age_to_dataset(timestep)])
 
@@ -249,6 +346,19 @@ class FunctionalGroupParameter:
             raise TypeError(msg)
 
     def to_dataset(self: FunctionalGroupParameter, timestep: int) -> xr.Dataset:
+        """Convert all functional groups parameters to a single xarray Dataset.
+
+        Parameters
+        ----------
+        timestep : int
+            The model timestep duration.
+
+        Returns
+        -------
+        xr.Dataset
+            Dataset containing parameters for all functional groups concatenated along the functional_group dimension.
+
+        """
         all_dataset = [fgroup.to_dataset(timestep) for fgroup in self.functional_group]
 
         coordinates = xr.DataArray(

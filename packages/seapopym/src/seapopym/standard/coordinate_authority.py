@@ -1,5 +1,4 @@
-"""
-Coordinate Authority for managing coordinate attributes and integrity.
+"""Coordinate Authority for managing coordinate attributes and integrity.
 
 This module implements the CoordinateAuthority pattern to ensure coordinate
 attributes (especially axis labels like "T" for time) are preserved during
@@ -19,7 +18,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
     import numpy as np
-    import xarray as xr
 
 
 # Coordinate Factory Functions
@@ -27,7 +25,19 @@ if TYPE_CHECKING:
 
 
 def create_latitude_coordinate(latitude_data: np.ndarray) -> xr.DataArray:
-    """Create a new latitude coordinate with standardized Y name."""
+    """Create a new latitude coordinate with standardized Y name.
+
+    Parameters
+    ----------
+    latitude_data : np.ndarray
+        Array of latitude values.
+
+    Returns
+    -------
+    xr.DataArray
+        The latitude coordinate DataArray with attributes.
+
+    """
     attributs = {"long_name": "latitude", "standard_name": "latitude", "units": "degrees_north", "axis": "Y"}
     return xr.DataArray(
         coords=[("Y", latitude_data, attributs)],
@@ -36,7 +46,19 @@ def create_latitude_coordinate(latitude_data: np.ndarray) -> xr.DataArray:
 
 
 def create_longitude_coordinate(longitude_data: Iterable) -> xr.DataArray:
-    """Create a new longitude coordinate with standardized X name."""
+    """Create a new longitude coordinate with standardized X name.
+
+    Parameters
+    ----------
+    longitude_data : Iterable
+        Array of longitude values.
+
+    Returns
+    -------
+    xr.DataArray
+        The longitude coordinate DataArray with attributes.
+
+    """
     attributs = {"long_name": "longitude", "standard_name": "longitude", "units": "degrees_east", "axis": "X"}
     return xr.DataArray(
         coords=[("X", longitude_data, attributs)],
@@ -45,7 +67,19 @@ def create_longitude_coordinate(longitude_data: Iterable) -> xr.DataArray:
 
 
 def create_layer_coordinate(layer_data: Iterable | None = None) -> xr.DataArray:
-    """Create a new layer coordinate."""
+    """Create a new layer coordinate.
+
+    Parameters
+    ----------
+    layer_data : Iterable | None, optional
+        Array of layer values. If None, defaults are used from SeaLayers.
+
+    Returns
+    -------
+    xr.DataArray
+        The layer coordinate DataArray with attributes.
+
+    """
     if layer_data is None:
         layer_data = [layer.depth for layer in SeaLayers]
     attributs = {
@@ -60,14 +94,38 @@ def create_layer_coordinate(layer_data: Iterable | None = None) -> xr.DataArray:
 
 
 def create_time_coordinate(time_data: Iterable) -> xr.DataArray:
-    """Create a new time coordinate with standardized T name."""
+    """Create a new time coordinate with standardized T name.
+
+    Parameters
+    ----------
+    time_data : Iterable
+        Array of time values.
+
+    Returns
+    -------
+    xr.DataArray
+        The time coordinate DataArray with attributes.
+
+    """
     return xr.DataArray(
         coords=[("T", time_data, {"long_name": "time", "standard_name": "time", "axis": "T"})], dims=["T"]
     ).coords["T"]
 
 
 def create_cohort_coordinate(cohort_data: Iterable) -> xr.DataArray:
-    """Create a new cohort coordinate."""
+    """Create a new cohort coordinate.
+
+    Parameters
+    ----------
+    cohort_data : Iterable
+        Array of cohort values.
+
+    Returns
+    -------
+    xr.DataArray
+        The cohort coordinate DataArray with attributes.
+
+    """
     attributs = {"long_name": "cohort", "standard_name": "cohort"}
     return xr.DataArray(
         coords=[("cohort", cohort_data, attributs)],
@@ -77,8 +135,7 @@ def create_cohort_coordinate(cohort_data: Iterable) -> xr.DataArray:
 
 @frozen
 class CoordinateAuthority:
-    """
-    Central authority for coordinate management and validation.
+    """Central authority for coordinate management and validation.
 
     Uses a registry pattern to manage coordinate factories, making it extensible
     and maintainable. Ensures coordinate attributes are preserved across xarray
@@ -90,8 +147,7 @@ class CoordinateAuthority:
 
     @classmethod
     def register_coordinate(cls, label: CoordinatesLabels, factory: Callable) -> None:
-        """
-        Register a coordinate factory for a given label.
+        """Register a coordinate factory for a given label.
 
         Args:
             label: Coordinate label from CoordinatesLabels enum
@@ -102,7 +158,13 @@ class CoordinateAuthority:
 
     @classmethod
     def initialize_defaults(cls) -> None:
-        """Initialize the registry with default coordinate factories."""
+        """Initialize the registry with default coordinate factories.
+
+        Returns
+        -------
+        None
+
+        """
         cls.register_coordinate(CoordinatesLabels.time, create_time_coordinate)
         cls.register_coordinate(CoordinatesLabels.Y, create_latitude_coordinate)
         cls.register_coordinate(CoordinatesLabels.X, create_longitude_coordinate)
@@ -111,13 +173,19 @@ class CoordinateAuthority:
 
     @classmethod
     def get_registered_coordinates(cls) -> tuple[CoordinatesLabels, ...]:
-        """Get all registered coordinate labels."""
+        """Get all registered coordinate labels.
+
+        Returns
+        -------
+        tuple[CoordinatesLabels, ...]
+            A tuple of registered coordinate labels.
+
+        """
         return tuple(cls._registry.keys())
 
     @classmethod
     def _to_coordinate_label(cls, coord_name: str) -> CoordinatesLabels | None:
-        """
-        Convert a coordinate name string to CoordinatesLabels enum if possible.
+        """Convert a coordinate name string to CoordinatesLabels enum if possible.
 
         Args:
             coord_name: String name of coordinate
@@ -132,8 +200,7 @@ class CoordinateAuthority:
             return None
 
     def validate_coordinates(self, data: xr.Dataset) -> xr.Dataset:
-        """
-        Validate and restore missing coordinate attributes.
+        """Validate and restore missing coordinate attributes.
 
         Args:
             data: xarray Dataset to validate
@@ -169,8 +236,7 @@ class CoordinateAuthority:
         return validated_data
 
     def ensure_coordinate_integrity(self, data: xr.Dataset) -> xr.Dataset:
-        """
-        Ensure coordinate integrity after xarray operations.
+        """Ensure coordinate integrity after xarray operations.
 
         This method should be called after operations that might lose
         coordinate attributes to restore them according to CF conventions.
@@ -185,8 +251,7 @@ class CoordinateAuthority:
         return self.validate_coordinates(data)
 
     def get_coordinate_attrs(self, coord_label: CoordinatesLabels) -> dict[str, Any]:
-        """
-        Get expected attributes for a coordinate label.
+        """Get expected attributes for a coordinate label.
 
         Args:
             coord_label: Coordinate label from CoordinatesLabels enum
@@ -207,8 +272,7 @@ class CoordinateAuthority:
         return dummy_coord.attrs.copy()
 
     def is_coordinate_valid(self, data: xr.Dataset, coord_label: CoordinatesLabels) -> bool:
-        """
-        Check if a coordinate has all required attributes.
+        """Check if a coordinate has all required attributes.
 
         Args:
             data: xarray Dataset to check

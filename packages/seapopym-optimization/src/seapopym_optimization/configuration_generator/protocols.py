@@ -1,6 +1,6 @@
-"""
-Protocols for SeapoPym optimization algorithms and components. You must follow instructions in this module if you want
-to implement a new component for optimization.
+"""Protocols for SeapoPym optimization algorithms and components.
+
+If you want to implement a new component for optimization, you must follow instructions in this module.
 """
 
 from __future__ import annotations
@@ -17,7 +17,6 @@ if TYPE_CHECKING:
         KernelParameterProtocol,
         ModelProtocol,
     )
-
     from seapopym_optimization.functional_group.base_functional_group import AbstractFunctionalGroup
 
 
@@ -31,8 +30,7 @@ class FunctionalGroupUnitGeneratorProtocol[T: AbstractFunctionalGroup, U: Functi
 
 @runtime_checkable
 class ConfigurationGeneratorProtocol[T: AbstractFunctionalGroup, V: ConfigurationProtocol](Protocol):
-    """
-    Protocol for configuration generators in SeapoPym optimization.
+    """Protocol for configuration generators in SeapoPym optimization.
 
     It start from the functional group in optimization format (type T), generates the corresponding functional group in
     SeapoPym format, and then generates a SeapoPym configuration (type V) using the generated functional groups

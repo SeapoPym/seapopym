@@ -17,8 +17,8 @@ MAXIMUM_INIT_TRY = 1000
 
 
 def random_uniform_exclusive(lower: float, upper: float) -> float:
-    """
-    Generate a random float value between `lower` and `upper` bounds, excluding the bounds themselves.
+    """Generate a random float value between `lower` and `upper` bounds, excluding the bounds themselves.
+
     If the random value equals either bound, it will retry until a valid value is found or the maximum number of tries
     is reached.
 
@@ -56,8 +56,8 @@ def initialize_with_sobol_sampling(
     *,
     calc_second_order: bool = False,
 ) -> pd.DataFrame:
-    """
-    Generate Sobol samples for the given functional group parameters.
+    """Generate Sobol samples for the given functional group parameters.
+
     This function uses the SALib library to generate samples based on the specified functional group parameters.
     """
     if not isinstance(functional_group_parameters, FunctionalGroupSet):

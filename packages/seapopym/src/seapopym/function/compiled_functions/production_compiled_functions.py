@@ -8,8 +8,7 @@ from numba import jit
 
 @jit
 def expand_dims(data: np.ndarray, dim_len: int) -> np.ndarray:
-    """
-    Expand array with a new cohort dimension, initializing first cohort with input data.
+    """Expand array with a new cohort dimension, initializing first cohort with input data.
 
     Creates a new array with an additional dimension of length `dim_len` representing
     cohorts. The input data is placed in the first cohort (index 0), while all other
@@ -43,8 +42,7 @@ def expand_dims(data: np.ndarray, dim_len: int) -> np.ndarray:
 
 @jit
 def ageing(production: np.ndarray, nb_timestep_by_cohort: np.ndarray) -> np.ndarray:
-    """
-    Age production across cohorts by transferring fractions to next age classes.
+    """Age production across cohorts by transferring fractions to next age classes.
 
     Implements cohort aging by moving a fraction of production from each cohort to
     the next age class. The transfer fraction is 1/nb_timestep_by_cohort, representing
@@ -89,8 +87,7 @@ def production(
     timestep_number: np.ndarray,
     initial_production: np.ndarray | None = None,
 ) -> np.ndarray:
-    """
-    Compute total recruited production from primary production with cohort aging.
+    """Compute total recruited production from primary production with cohort aging.
 
     Simulates production recruitment over time by processing primary production through
     cohort-based aging dynamics. At each timestep, production either gets recruited
@@ -144,8 +141,7 @@ def production_space_optimized(
     timestep_number: np.ndarray,
     initial_production: np.ndarray | None = None,
 ) -> np.ndarray:
-    """
-    Memory-optimized computation of total recruited production with cohort aging.
+    """Memory-optimized computation of total recruited production with cohort aging.
 
     Performs the same calculation as `production` but with reduced memory footprint.
     Instead of storing full cohort data then summing, this function computes the
@@ -200,8 +196,7 @@ def production_export_initial(
     timestep_number: np.ndarray,
     initial_production: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Compute recruited production and export final pre-production state for continuity.
+    """Compute recruited production and export final pre-production state for continuity.
 
     Performs the same recruitment calculation as `production` but additionally returns
     the unrecruited production state at the end of the simulation. This final state
@@ -260,8 +255,7 @@ def production_export_preproduction(
     timestep_number: np.ndarray,
     initial_production: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Compute recruited production and export full pre-production time series.
+    """Compute recruited production and export full pre-production time series.
 
     Performs recruitment calculation while tracking and exporting the complete
     pre-production (unrecruited) state at every timestep. This provides detailed

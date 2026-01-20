@@ -1,6 +1,6 @@
-"""
-This module contains the configuration of the model as a xarray.Dataset. It allows to store the model parameters and
-the forcings (lazily).
+"""This module contains the configuration of the model as a xarray.Dataset.
+
+It allows to store the model parameters and the forcings (lazily).
 """
 
 from __future__ import annotations
@@ -24,7 +24,18 @@ if TYPE_CHECKING:
 
 @frozen(kw_only=True)
 class NoTransportConfiguration:
-    """Configuration for the NoTransportModel."""
+    """Configuration for the NoTransportModel.
+
+    Attributes
+    ----------
+    forcing : ForcingParameter
+        The forcing parameters for the configuration.
+    functional_group : FunctionalGroupParameter
+        The functional group parameters for the configuration.
+    kernel : KernelParameter
+        The kernel parameters for the configuration.
+
+    """
 
     forcing: ForcingParameter = field(metadata={"description": "The forcing parameters for the configuration."})
     functional_group: FunctionalGroupParameter = field(
@@ -37,7 +48,14 @@ class NoTransportConfiguration:
 
     @property
     def state(self: NoTransportConfiguration) -> SeapopymState:
-        """The xarray.Dataset that stores the state of the model. Data is sent to worker if chunked."""
+        """The xarray.Dataset that stores the state of the model. Data is sent to worker if chunked.
+
+        Returns
+        -------
+        SeapopymState
+            The merged dataset containing forcing, functional group, and kernel parameters.
+
+        """
         data = self.forcing.to_dataset()
         timestep = pint.Quantity(data.indexes["T"].to_series().diff().dt.days.iloc[1], "day")  # Directly as Quantity
         data = xr.merge(
@@ -57,6 +75,23 @@ class NoTransportConfiguration:
 
     @classmethod
     def parse(cls: NoTransportConfiguration, configuration_file: str | Path | IO) -> NoTransportConfiguration:
-        """Parse the configuration file and create a NoTransportConfiguration object."""
+        """Parse the configuration file and create a NoTransportConfiguration object.
+
+        Parameters
+        ----------
+        configuration_file : str | Path | IO
+            Path to the configuration file or file-like object.
+
+        Returns
+        -------
+        NoTransportConfiguration
+            The parsed configuration object.
+
+        Raises
+        ------
+        NotImplementedError
+            This method is not implemented yet.
+
+        """
         msg = "This method is not implemented yet."
         raise NotImplementedError(msg)

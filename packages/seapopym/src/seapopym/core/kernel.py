@@ -1,4 +1,9 @@
-"""Define the Kernels used in the model."""
+"""Define the Kernels used in the model.
+
+This module contains the `Kernel` and `KernelUnit` classes, which are the building blocks
+of the model's computation graph. It also provides factory functions to create custom
+kernel classes.
+"""
 
 from __future__ import annotations
 
@@ -21,9 +26,23 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class KernelUnit:
-    """
-    The KernelUnit class is used to define a kernel function that can be applied to the model state.
+    """The KernelUnit class is used to define a kernel function that can be applied to the model state.
+
     It contains the function, its template, and the arguments to be passed to the function.
+
+    Attributes
+    ----------
+    name : str
+        The name of the kernel unit.
+    template : Template
+        The template defining the expected output structure.
+    function : Callable[[SeapopymState], xr.Dataset]
+        The function to apply to the state.
+    to_remove_from_state : list[str] | None
+        List of variables to remove from the state after execution.
+    parallel : bool
+        Whether to run the function in parallel using Dask. Default is False.
+
     """
 
     name: str
@@ -33,6 +52,24 @@ class KernelUnit:
     parallel: bool = False
 
     def _run_without_dask(self: KernelUnit, state: SeapopymState) -> xr.Dataset:
+        """Run the kernel function without Dask.
+
+        Parameters
+        ----------
+        state : SeapopymState
+            The input state.
+
+        Returns
+        -------
+        xr.Dataset
+            The result of the function.
+
+        Raises
+        ------
+        ValueError
+            If a variable defined in the template is missing from the results.
+
+        """
         results = self.function(state)
         for template in self.template.template_unit:
             if template.name not in results:
@@ -44,11 +81,36 @@ class KernelUnit:
         return results
 
     def _map_block_with_dask(self: KernelUnit, state: SeapopymState) -> xr.Dataset:
+        """Run the kernel function using Dask's map_blocks.
+
+        Parameters
+        ----------
+        state : SeapopymState
+            The input state.
+
+        Returns
+        -------
+        xr.Dataset
+            The lazy result using Dask.
+
+        """
         result_template = self.template.generate(state)
         return xr.map_blocks(self.function, state, template=result_template)
 
     def run(self: KernelUnit, state: SeapopymState) -> SeapopymState | SeapopymForcing:
-        """Execute the kernel function on the model state and return the results as Dataset."""
+        """Execute the kernel function on the model state and return the results as Dataset.
+
+        Parameters
+        ----------
+        state : SeapopymState
+            The input state.
+
+        Returns
+        -------
+        SeapopymState | SeapopymForcing
+            The result of the kernel execution.
+
+        """
         if self.parallel:
             return self._map_block_with_dask(state)
         return self._run_without_dask(state)
@@ -60,8 +122,7 @@ def kernel_unit_factory(
     template: Iterable[type[TemplateUnit]],
     to_remove_from_state: list[str] | None = None,
 ) -> type[KernelUnit]:
-    """
-    Create a custom kernel unit class with the specified name and function.
+    """Create a custom kernel unit class with the specified name and function.
 
     Parameters
     ----------
@@ -108,19 +169,51 @@ def kernel_unit_factory(
 
 
 class Kernel:
-    """
-    The Kernel class is used to define a kernel that can be applied to the model state.
+    """The Kernel class is used to define a kernel that can be applied to the model state.
+
     It contains a list of KernelUnit that will be applied in order.
+
+    Attributes
+    ----------
+    kernel_unit : list[KernelUnit]
+        The list of kernel units to execute.
+    parallel : bool
+        Whether the kernel is running in parallel mode.
+
     """
 
     def __init__(
         self: Kernel, kernel_unit: Iterable[type[KernelUnit]], chunk: dict[str, int], parallel: bool = False
     ) -> None:
+        """Initialize the Kernel.
+
+        Parameters
+        ----------
+        kernel_unit : Iterable[type[KernelUnit]]
+            The list of kernel unit classes to instantiate.
+        chunk : dict[str, int]
+            Chunk sizes for Dask.
+        parallel : bool, optional
+            Whether to run in parallel. Default is False.
+
+        """
         self.kernel_unit = [ku(chunk, parallel) for ku in kernel_unit]
         self.parallel = parallel
 
     def run(self: Kernel, state: SeapopymState) -> SeapopymState:
-        """Run all kernel_unit in the kernel in order."""
+        """Run all kernel_unit in the kernel in order.
+
+        Parameters
+        ----------
+        state : SeapopymState
+            The initial state.
+
+        Returns
+        -------
+        SeapopymState
+            The state after applying all kernel units.
+
+        """
         for ku in self.kernel_unit:
             results = ku.run(state)
             state = results.merge(state, compat="override")
@@ -132,16 +225,15 @@ class Kernel:
         return coordinate_authority.ensure_coordinate_integrity(state)
 
     def template(self: Kernel, state: SeapopymState) -> SeapopymState:
-        """
-        Generate an empty Dataset that represent the state of the model at the end of execution. Usefull for
-        size estimation.
+        """Generate an empty Dataset that represent the state of the model at the end of execution.
+
+        Useful forsize estimation.
         """
         return xr.merge([state] + [unit.template.generate(state) for unit in self.kernel_unit], compat="override")
 
 
 def kernel_factory(class_name: str, kernel_unit: list[type[KernelUnit]]) -> Kernel:
-    """
-    Create a custom kernel class with the specified name and functions.
+    """Create a custom kernel class with the specified name and functions.
 
     Parameters
     ----------
@@ -167,7 +259,7 @@ def kernel_factory(class_name: str, kernel_unit: list[type[KernelUnit]]) -> Kern
     """
 
     class CustomKernel(Kernel):
-        def __init__(self, chunk: dict, parallel: bool = False):
+        def __init__(self, chunk: dict, parallel: bool = False) -> None:
             super().__init__(kernel_unit=kernel_unit, chunk=chunk, parallel=parallel)
 
     CustomKernel.__name__ = class_name

@@ -20,12 +20,26 @@ EARTH_RADIUS = 6_371_000 * StandardUnitsLabels.height.units
 
 
 def _haversine_distance(min_latitude: float, max_latitude: float, min_longitude: float, max_longitude: float) -> float:
-    """
-    Calculate the great circle distance between two points on the earth (specified in
-    decimal degrees).
+    """Calculate the great circle distance between two points on the earth.
 
-    Warning:
+    Parameters
+    ----------
+    min_latitude : float
+        Starting latitude in degrees.
+    max_latitude : float
+        Ending latitude in degrees.
+    min_longitude : float
+        Starting longitude in degrees.
+    max_longitude : float
+        Ending longitude in degrees.
+
+    Returns
     -------
+    float
+        The distance in meters.
+
+    Notes
+    -----
     If the longitude distance is greater than 180 degrees, the function will return the shortest distance between the
     two points.
 
@@ -46,9 +60,7 @@ def _haversine_distance(min_latitude: float, max_latitude: float, min_longitude:
 
 
 def _cell_borders_length(latitude: float, resolution: float | tuple[float, float]) -> tuple[float, float]:
-    """
-    Calculate the edge length of a cell (in kilometers) using its centroid latitude
-    position and its resolution (in degrees).
+    """Calculate the edge length of a cell (in kilometers) using its centroid latitude position and its resolution (in degrees).
 
     Parameters
     ----------
@@ -83,9 +95,7 @@ def _cell_borders_length(latitude: float, resolution: float | tuple[float, float
 
 
 def _cell_area(latitude: float, resolution: float | tuple[float, float]) -> float:
-    """
-    Return the cell surface area (squared meters) according to its centroid latitude position and resolution (in
-    degrees).
+    """Return the cell surface area (squared meters) according to its centroid position and resolution (in degrees).
 
     Parameters
     ----------
@@ -107,8 +117,7 @@ def _cell_area(latitude: float, resolution: float | tuple[float, float]) -> floa
 def _mesh_cell_area(
     latitude: xr.DataArray, longitude: xr.DataArray, resolution: float | tuple[float, float]
 ) -> xr.DataArray:
-    """
-    Expand the cell_area function to a meshgrid of latitude and longitude.
+    """Expand the cell_area function to a meshgrid of latitude and longitude.
 
     Parameters
     ----------
@@ -145,18 +154,18 @@ def _mesh_cell_area(
 
 
 def cell_area(state: SeapopymState) -> xr.Dataset:
-    """
-    Compute the cell area from the latitude and longitude.
+    """Compute the cell area from the latitude and longitude.
 
-    Input
-    ------
-    - latitude [latitude]
-    - longitude [longitude]
-    - resolution
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing latitude, longitude and resolution configuration.
 
-    Output
-    ------
-    - cell_area [latitude, longitude]s
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the cell area.
+
     """
     resolution = np.array(
         state[ConfigurationLabels.resolution_latitude], state[ConfigurationLabels.resolution_longitude]
@@ -174,3 +183,4 @@ CellAreaTemplate = template.template_unit_factory(
 
 
 CellAreaKernel = kernel.kernel_unit_factory(name="cell_area", template=[CellAreaTemplate], function=cell_area)
+"""Kernel to compute cell area."""

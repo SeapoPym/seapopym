@@ -12,7 +12,6 @@ import xarray as xr
 from seapopym.core import kernel, template
 from seapopym.standard.attributs import day_length_desc
 from seapopym.standard.labels import ConfigurationLabels, CoordinatesLabels, ForcingLabels
-from seapopym.standard.units import StandardUnitsLabels
 
 if TYPE_CHECKING:
     from seapopym.standard.types import SeapopymState
@@ -21,15 +20,22 @@ DAY_IN_HOUR = pint.application_registry("day").to("hour").magnitude
 
 
 def _day_length_forsythe(latitude: float, day_of_the_year: int, p: int = 0) -> float:
-    """
-    Compute the day length for a given latitude, day of the year and twilight angle.
+    """Compute the day length for a given latitude, day of the year and twilight angle.
 
-    NOTE Jules : Seapodym fish (CSimtunaFunc::daylength_twilight)
-    The CBM model of Forsythe et al, Ecological Modelling 80 (1995) 87-95
-    p - angle between the sun position and the horizon, in degrees :
+    The CBM model of Forsythe et al, Ecological Modelling 80 (1995) 87-95.
+
+    Parameters
+    ----------
+    latitude : float
+        Latitude in degrees.
+    day_of_the_year : int
+        Day of the year (1-365/366).
+    p : int, optional
+        Angle between the sun position and the horizon, in degrees.
         - 6  => civil twilight
         - 12 => nautical twilight
         - 18 => astronomical twilight
+        Default is 0.
 
     Returns
     -------
@@ -61,8 +67,7 @@ def _mesh_day_length(
     longitude: xr.DataArray,
     angle_horizon_sun: int = 0,
 ) -> xr.DataArray:
-    """
-    Compute the day length according to coordinates.
+    """Compute the day length according to coordinates.
 
     Parameters
     ----------
@@ -115,6 +120,19 @@ def _mesh_day_length(
 
 
 def day_length(state: SeapopymState) -> xr.Dataset:
+    """Compute the day length based on the time and location.
+
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state containing time, latitude, longitude and angle configuration.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the day length.
+
+    """
     angle_horizon_sun = state.get(ConfigurationLabels.angle_horizon_sun)
     day_length = _mesh_day_length(
         state[CoordinatesLabels.time],
@@ -133,3 +151,4 @@ DayLengthTemplate = template.template_unit_factory(
 
 
 DayLengthKernel = kernel.kernel_unit_factory(name="day_length", template=[DayLengthTemplate], function=day_length)
+"""Kernel to compute day length."""

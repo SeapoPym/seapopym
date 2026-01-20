@@ -1,5 +1,5 @@
-"""
-This module contains the function used to compute biomass with Beverton-Holt stock-recruitment.
+"""This module contains the function used to compute biomass with Beverton-Holt stock-recruitment.
+
 Combines production and biomass computation in a single temporal loop.
 """
 
@@ -24,7 +24,21 @@ BIOMASS_DIMS = [CoordinatesLabels.time, CoordinatesLabels.Y, CoordinatesLabels.X
 
 
 def _beverton_holt_helper_init_forcing(fgroup_data: xr.Dataset, state: SeapopymState) -> dict[str, np.ndarray]:
-    """Initialize the forcing data used in the Numba function that computes biomass with Beverton-Holt."""
+    """Initialize the forcing data used in the Numba function that computes biomass with Beverton-Holt.
+
+    Parameters
+    ----------
+    fgroup_data : xr.Dataset
+        Dataset containing data for a specific functional group.
+    state : SeapopymState
+        The global model state.
+
+    Returns
+    -------
+    dict[str, np.ndarray]
+        Dictionary of standardized forcing arrays for the Numba function.
+
+    """
 
     def standardize_forcing(forcing: xr.DataArray, nan: object = 0.0, dtype: type = np.float64) -> np.ndarray:
         """Refer to Numba documentation about array typing."""
@@ -63,7 +77,23 @@ def _beverton_holt_helper_init_forcing(fgroup_data: xr.Dataset, state: SeapopymS
 def _beverton_holt_helper_format_output(
     fgroup_data: SeapopymState, dims: Iterable[SeapopymDims], data: np.ndarray
 ) -> SeapopymForcing:
-    """Convert the output of the Numba function to a DataArray."""
+    """Convert the output of the Numba function to a DataArray.
+
+    Parameters
+    ----------
+    fgroup_data : SeapopymState
+        The functional group data containing coordinates.
+    dims : Iterable[SeapopymDims]
+        Dimensions of the output data.
+    data : np.ndarray
+        The raw data array from Numba.
+
+    Returns
+    -------
+    SeapopymForcing
+        Formatted DataArray.
+
+    """
     coords = {fgroup_data[dim_name].name: fgroup_data[dim_name] for dim_name in dims}
     formated_data = xr.DataArray(coords=coords, dims=coords.keys())
     formated_data = CoordinatesLabels.order_data(formated_data)
@@ -72,7 +102,19 @@ def _beverton_holt_helper_format_output(
 
 
 def biomass_beverton_holt(state: SeapopymState) -> xr.Dataset:
-    """Compute biomass using Beverton-Holt stock-recruitment with a numba jit function."""
+    """Compute biomass using Beverton-Holt stock-recruitment with a numba jit function.
+
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the computed biomass.
+
+    """
     state = state.transpose(*CoordinatesLabels.ordered(), missing_dims="ignore")
     results_biomass = []
 
@@ -87,7 +129,21 @@ def biomass_beverton_holt(state: SeapopymState) -> xr.Dataset:
 
 
 def _beverton_holt_survival_helper_init_forcing(fgroup_data: xr.Dataset, state: SeapopymState) -> dict[str, np.ndarray]:
-    """Initialize the forcing data for Beverton-Holt with survival rate."""
+    """Initialize the forcing data for Beverton-Holt with survival rate.
+
+    Parameters
+    ----------
+    fgroup_data : xr.Dataset
+        Dataset containing data for a specific functional group.
+    state : SeapopymState
+        The global model state.
+
+    Returns
+    -------
+    dict[str, np.ndarray]
+        Dictionary of standardized forcing arrays.
+
+    """
 
     def standardize_forcing(forcing: xr.DataArray, nan: object = 0.0, dtype: type = np.float64) -> np.ndarray:
         """Refer to Numba documentation about array typing."""
@@ -125,7 +181,19 @@ def _beverton_holt_survival_helper_init_forcing(fgroup_data: xr.Dataset, state: 
 
 
 def biomass_beverton_holt_survival(state: SeapopymState) -> xr.Dataset:
-    """Compute biomass using Beverton-Holt stock-recruitment with survival rate adjustment."""
+    """Compute biomass using Beverton-Holt stock-recruitment with survival rate adjustment.
+
+    Parameters
+    ----------
+    state : SeapopymState
+        The model state.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the computed biomass.
+
+    """
     state = state.transpose(*CoordinatesLabels.ordered(), missing_dims="ignore")
     results_biomass = []
 
@@ -149,6 +217,7 @@ BiomassTemplate = template.template_unit_factory(
 BiomassBeverttonHoltKernel = kernel.kernel_unit_factory(
     name="biomass_beverton_holt", template=[BiomassTemplate], function=biomass_beverton_holt
 )
+"""Kernel to compute biomass with Beverton-Holt stock-recruitment."""
 
 BiomassBeverttonHoltKernelLight = kernel.kernel_unit_factory(
     name="biomass_beverton_holt_light",
@@ -156,10 +225,12 @@ BiomassBeverttonHoltKernelLight = kernel.kernel_unit_factory(
     function=biomass_beverton_holt,
     to_remove_from_state=[ForcingLabels.mortality_field, ForcingLabels.mask_temperature],
 )
+"""Light Kernel for Beverton-Holt biomass (removes mortality and mask temperature)."""
 
 BiomassBeverttonHoltSurvivalKernel = kernel.kernel_unit_factory(
     name="biomass_beverton_holt_survival", template=[BiomassTemplate], function=biomass_beverton_holt_survival
 )
+"""Kernel to compute biomass with Beverton-Holt stock-recruitment and survival rate."""
 
 BiomassBeverttonHoltSurvivalKernelLight = kernel.kernel_unit_factory(
     name="biomass_beverton_holt_survival_light",
@@ -167,3 +238,4 @@ BiomassBeverttonHoltSurvivalKernelLight = kernel.kernel_unit_factory(
     function=biomass_beverton_holt_survival,
     to_remove_from_state=[ForcingLabels.mortality_field, ForcingLabels.mask_temperature, ForcingLabels.survival_rate],
 )
+"""Light Kernel for Beverton-Holt survival biomass (removes mortality, mask, survival rate)."""

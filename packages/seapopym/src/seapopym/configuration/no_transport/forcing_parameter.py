@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Literal, ParamSpecArgs, ParamSpecKwargs
 
 import cf_xarray  # noqa: F401
 import fsspec
-import numpy as np
 import pint
 import xarray as xr
 from attrs import asdict, converters, field, frozen, validators
@@ -86,8 +85,7 @@ def path_validation(path: str | Path) -> str | Path:
 
 @frozen(kw_only=True)
 class ForcingUnit:
-    """
-    This data class is used to store a forcing field.
+    """This data class is used to store a forcing field.
 
     Parameters
     ----------
@@ -107,7 +105,7 @@ class ForcingUnit:
         metadata={"description": "Forcing field."},
     )
 
-    def __attrs_post_init__(self) -> None:
+    def __attrs_post_init__(self: ForcingUnit) -> None:
         """Apply coordinate standardization after initialization."""
         standardized_forcing = self._standardize_coordinates(self.forcing)
         # Use object.__setattr__ because @frozen prevents normal assignment
@@ -179,8 +177,7 @@ class ForcingUnit:
         return cls.from_dataset(data, name)
 
     def convert(self: ForcingUnit, units: str | Unit) -> ForcingUnit:
-        """
-        Create a new ForcingUnit with the same forcing field but with a different unit.
+        """Create a new ForcingUnit with the same forcing field but with a different unit.
 
         Parameters.
         ----------
@@ -221,9 +218,10 @@ class ForcingUnit:
 
 @frozen(kw_only=True)
 class ForcingParameter:
-    """
-    This data class is used to store access paths to forcing fields. You can inherit it to add further forcings, but in
-    this case you'll need to add new behaviors to the functions and classes that follow.
+    """This data class is used to store access paths to forcing fields.
+
+    You can inherit it to add further forcings, but in this case you'll need to add new behaviors to the functions and
+    classes that follow.
     """
 
     temperature: ForcingUnit = field(

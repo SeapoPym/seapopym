@@ -1,13 +1,15 @@
 from attrs import field, frozen
 
-from seapopym.configuration import acidity, no_transport
+from seapopym.configuration.acidity.forcing_parameter import ForcingParameter
+from seapopym.configuration.acidity.functional_group_parameter import FunctionalGroupParameter
+from seapopym.configuration.no_transport import NoTransportConfiguration
 
 
 @frozen(kw_only=True)
-class AcidityConfiguration(no_transport.NoTransportConfiguration):
-    """Configuration for the NoTransportModel."""
+class AcidityConfiguration(NoTransportConfiguration):
+    """Configuration for the AcidityModel."""
 
-    forcing: acidity.ForcingParameter = field(metadata={"description": "The forcing parameters for the configuration."})
-    functional_group: acidity.FunctionalGroupParameter = field(
+    forcing: ForcingParameter = field(metadata={"description": "The forcing parameters for the configuration."})
+    functional_group: FunctionalGroupParameter = field(
         metadata={"description": "The functional group parameters for the configuration."}
     )

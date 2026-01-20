@@ -13,12 +13,19 @@ from seapopym.standard.units import StandardUnitsLabels
 
 @frozen(kw_only=True)
 class FunctionalTypeParameter(acidity_bed.FunctionalTypeParameter):
-    """
-    Functional type parameters with Bednarsek mortality and Beverton-Holt stock-recruitment.
+    """Functional type parameters with Bednarsek mortality and Beverton-Holt stock-recruitment.
 
     Extends the Bednarsek parameters with density-dependent recruitment via Beverton-Holt:
     - Stock-recruitment: R = PP * (density_dependance_parameter_a * B) / (1 + density_dependance_parameter_b * B)
     - Where B is biomass and PP is primary production
+
+    Attributes
+    ----------
+    density_dependance_parameter_a : pint.Quantity
+        Beverton-Holt density dependence parameter numerator (a). (1/biomass unit).
+    density_dependance_parameter_b : pint.Quantity
+        Beverton-Holt density dependence parameter denominator (b). (1/biomass unit).
+
     """
 
     density_dependance_parameter_a: pint.Quantity = field(
