@@ -11,7 +11,7 @@ import numpy as np
 import xarray as xr
 
 from seapopym.core import kernel, template
-from seapopym.function.compiled_functions.biomass_compiled_functions import biomass_euler_implicite
+from seapopym.function.compiled_functions.biomass_compiled_functions import biomass_euler_explicite
 from seapopym.standard.attributs import biomass_desc
 from seapopym.standard.labels import ConfigurationLabels, CoordinatesLabels, ForcingLabels
 
@@ -58,7 +58,7 @@ def biomass(state: SeapopymState) -> xr.Dataset:
         initial_conditions = _format_fields(state[ConfigurationLabels.initial_condition_biomass])
     else:
         initial_conditions = None
-    biomass = biomass_euler_implicite(
+    biomass = biomass_euler_explicite(
         recruited=recruited, mortality=mortality, initial_conditions=initial_conditions, delta_time=int(delta_time)
     )
     biomass = xr.DataArray(
