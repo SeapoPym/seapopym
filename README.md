@@ -15,7 +15,6 @@ seapopym-organisation/
 ├── packages/
 │   ├── seapopym/              # Core model (Xarray/Numba)
 │   └── seapopym-optimization/ # Genetic algorithms and optimization
-├── paper_workflow/            # Notebooks for article reproduction
 └── pyproject.toml            # Workspace configuration
 ```
 
@@ -55,7 +54,14 @@ See [LICENSE](LICENSE) for details.
 If you use this software in your research, please cite:
 
 ```
-J.V. Lehodey 2026, SeapoPym v0.1: Implementation of the SEAPODYM low and mid trophic levels in Python with a flexible optimisation framework
+@software{SeapoPym_v0_1,
+  author       = {Lehodey, J.V.},
+  title        = {SeapoPym v0.1: Implementation of the SEAPODYM low and mid trophic levels in Python},
+  year         = {2025},
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.PENDING},
+  url          = {https://github.com/Seapodym/seapopym}
+}
 ```
 
 ## Authors
@@ -64,4 +70,6 @@ J.V. Lehodey 2026, SeapoPym v0.1: Implementation of the SEAPODYM low and mid tro
 
 ## Acknowledgments
 
-[To be filled during migration]
+This research was performed at Mercator Ocean International and the Pacific Community (SPC).
+
+Financial support was provided by the Pacific Community (SPC) through the Climate Science to Ensure Pacific Access Work Programme (CSEPTA). J.V. Lehodey is supported by a PhD grant from the SPC and employed by the Institut de Recherche pour le Développement (IRD).
