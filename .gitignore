@@ -60,6 +60,7 @@ site/
 *.zarr
 outputs/
 data/
+AI
 
 # Temporary files
 *.tmp

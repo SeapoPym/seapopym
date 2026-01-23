@@ -10,14 +10,6 @@ Classes
 -------
 NoTransportConfigurationGenerator
     Configuration generator for the no-transport model variant.
-AcidityConfigurationGenerator
-    Configuration generator for the acidity model variant.
-PteropodBedConfigurationGenerator
-    Configuration generator for the pteropods bed model variant.
-PteropodBedBHConfigurationGenerator
-    Configuration generator for the pteropods bed with biomass harvesting model variant.
-PteropodBedBHPFTConfigurationGenerator
-    Configuration generator for the pteropods bed with biomass harvesting and plant functional types model variant.
 
 Notes
 -----
@@ -26,5 +18,4 @@ FunctionalGroup definitions to define the complete optimization problem for a Se
 
 """
 
-from .acidity_configuration_generator import AcidityConfigurationGenerator
 from .no_transport_configuration_generator import NoTransportConfigurationGenerator

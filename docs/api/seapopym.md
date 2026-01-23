@@ -6,10 +6,6 @@
 
 ::: seapopym.model.no_transport_model
 
-### AcidityModel
-
-::: seapopym.model.acidity_model
-
 ## Configuration
 
 ### NoTransport Configuration

@@ -22,6 +22,10 @@ if TYPE_CHECKING:
 def biomass(state: SeapopymState) -> xr.Dataset:
     """Wrap the biomass computation around the Numba function.
 
+    Uses a fully explicit Euler scheme for time integration (as described in the
+    GMD publication). This scheme is conditionally stable and requires small time
+    steps (typically daily) to maintain numerical stability.
+
     Parameters
     ----------
     state : SeapopymState
@@ -31,6 +35,11 @@ def biomass(state: SeapopymState) -> xr.Dataset:
     -------
     xr.Dataset
         Dataset containing the computed biomass.
+
+    Notes
+    -----
+    For large time steps (e.g., weekly), consider using biomass_euler_implicite
+    instead to avoid numerical instability.
 
     """
 

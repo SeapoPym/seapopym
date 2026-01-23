@@ -68,25 +68,25 @@ ga_params = GeneticAlgorithmParameters(
 # - 'forcing' (ForcingParameter containing Temperature/PP)
 # - 'configuration_generator' (NoTransportConfigurationGenerator)
 #
-# cost_function = CostFunction(
-#     configuration_generator=my_config_gen,
-#     functional_groups=FunctionalGroupSet([f_group]),
-#     forcing=my_forcing_param,
-#     kernel=None,
-#     observations=[obs],
-#     processor=TimeSeriesScoreProcessor(comparator=rmse_comparator)
-# )
+cost_function = CostFunction(
+    configuration_generator=my_config_gen,
+    functional_groups=FunctionalGroupSet([f_group]),
+    forcing=my_forcing_param,
+    kernel=None,
+    observations=[obs],
+    processor=TimeSeriesScoreProcessor(comparator=rmse_comparator)
+)
 
 # --- 4. Run Optimization ---
 # Create the optimizer (Sequential for simple debugging, Parallel for speed)
-# ga = GeneticAlgorithmFactory.create_sequential(
-#     meta_parameter=ga_params,
-#     cost_function=cost_function
-# )
+ga = GeneticAlgorithmFactory.create_sequential(
+    meta_parameter=ga_params,
+    cost_function=cost_function
+)
 
 # Run
-# results = ga.optimize()
-# print(results) # The logbook containing statistics
+results = ga.optimize()
+print(results) # The logbook containing statistics
 ```
 
 For a fully working executable example including model and forcing generation, see the [Optimization Example](../notebooks/optimization_example.ipynb).
