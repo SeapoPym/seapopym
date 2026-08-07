@@ -1,7 +1,7 @@
 # SeapoPym: Spatial Ecosystem And POPulation dYnamics Model
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18348596.svg)](https://doi.org/10.5281/zenodo.18348596)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18339607.svg)](https://doi.org/10.5281/zenodo.18339607)
 
 
 ## Overview
@@ -56,13 +56,14 @@ See [LICENSE](LICENSE) for details.
 If you use this software in your research, please cite:
 
 ```
-@software{SeapoPym_v0_1,
+@software{SeapoPym,
   author       = {Lehodey, J.V.},
-  title        = {SeapoPym v0.1: Implementation of the SEAPODYM low and mid trophic levels in Python},
-  year         = {2025},
+  title        = {SeapoPym: Implementation of the SEAPODYM low and mid trophic levels in Python},
+  year         = {2026},
   publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.18348596},
-  url          = {https://github.com/SeapoPym/seapopym}
+  doi          = {10.5281/zenodo.18339607},
+  url          = {https://github.com/SeapoPym/seapopym},
+  note         = {Concept DOI, always resolving to the latest release}
 }
 ```
 
