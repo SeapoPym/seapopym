@@ -1,5 +1,6 @@
 """Optimization algorithms module."""
 
+from .cmaes import CMAES, CMAESParameters
 from .genetic_algorithm import (
     GeneticAlgorithm,
     GeneticAlgorithmParameters,
@@ -8,6 +9,8 @@ from .genetic_algorithm import (
 )
 
 __all__ = [
+    "CMAES",
+    "CMAESParameters",
     "GeneticAlgorithm",
     "GeneticAlgorithmParameters",
     "OptimizationAlgorithmProtocol",

@@ -164,6 +164,8 @@ class ConfigurationLabels(StrEnum):
         Flag to compute preproduction.
     compute_initial_conditions : str
         Flag to compute initial conditions.
+    biomass_solver : str
+        Biomass time-integration scheme: 'explicit' (Euler) or 'implicit' (IMEX).
     lambda_0 : str
         Bednarsek lambda zero.
     survival_rate_0 : str
@@ -214,6 +216,7 @@ class ConfigurationLabels(StrEnum):
     angle_horizon_sun = "angle_horizon_sun"
     compute_preproduction = "compute_preproduction"
     compute_initial_conditions = "compute_initial_conditions"
+    biomass_solver = "biomass_solver"
     # Bednarsek
     lambda_0 = "lambda_0"
     survival_rate_0 = "survival_rate_0"

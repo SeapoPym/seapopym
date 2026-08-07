@@ -231,6 +231,8 @@ class Logbook(DataFrame[logbook_schema]):
         functional_group_parameters: Sequence | FunctionalGroupSet,
         sample_number: int,
         fitness_names: list[str],
+        *,
+        saltelli: bool = True,
     ) -> Logbook:
         """Create a Logbook from Sobol samples.
 
@@ -239,9 +241,13 @@ class Logbook(DataFrame[logbook_schema]):
         functional_group_parameters : Sequence | FunctionalGroupSet
             Functional group parameters for sampling
         sample_number : int
-            N parameter for SALib sample_sobol. Total samples = N * (D + 2)
+            Sample count. With ``saltelli=True`` this is the SALib N (total samples = N * (D + 2));
+            with ``saltelli=False`` it is the exact number of (plain Sobol) samples returned.
         fitness_names : list[str]
             Names of fitness objectives
+        saltelli : bool, default True
+            If False, use a plain scrambled Sobol sequence of exactly ``sample_number`` points
+            (space-filling initial population) instead of the Saltelli sensitivity design.
 
         Returns
         -------
@@ -249,7 +255,7 @@ class Logbook(DataFrame[logbook_schema]):
             Logbook with Sobol-sampled parameters and NaN fitness
 
         """
-        samples = initialize_with_sobol_sampling(functional_group_parameters, sample_number)
+        samples = initialize_with_sobol_sampling(functional_group_parameters, sample_number, saltelli=saltelli)
 
         return cls.from_array(
             generation=[0] * len(samples),

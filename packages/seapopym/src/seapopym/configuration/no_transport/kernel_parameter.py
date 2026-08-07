@@ -23,6 +23,9 @@ class KernelParameter:
         If True, the initial conditions are computed. Default is False.
     compute_preproduction : bool
         If True, the pre-production is computed. Default is False.
+    biomass_solver : str
+        Biomass time-integration scheme: 'explicit' (fully explicit Euler, conditionally
+        stable) or 'implicit' (semi-implicit IMEX, unconditionally stable). Default is 'explicit'.
 
     """
 
@@ -44,6 +47,14 @@ class KernelParameter:
         metadata={"description": "If True, the pre-production is computed."},
     )
 
+    biomass_solver: str = field(
+        alias=ConfigurationLabels.biomass_solver,
+        default="explicit",
+        metadata={
+            "description": "Biomass time scheme: 'explicit' (Euler) or 'implicit' (IMEX, unconditionally stable)."
+        },
+    )
+
     def __attrs_post_init__(self) -> None:
         """Post-initialization processing."""
         if self.compute_initial_conditions and self.compute_preproduction:
@@ -51,6 +62,9 @@ class KernelParameter:
                 "Select only one of compute_initial_conditions or compute_preproduction."
                 "As compute_initial_conditions is included in compute_preproduction, "
             )
+            raise ValueError(msg)
+        if self.biomass_solver not in ("explicit", "implicit"):
+            msg = f"biomass_solver must be 'explicit' or 'implicit', got {self.biomass_solver!r}."
             raise ValueError(msg)
 
     def to_dataset(self) -> xr.Dataset:
@@ -67,5 +81,6 @@ class KernelParameter:
                 ConfigurationLabels.angle_horizon_sun: self.angle_horizon_sun,
                 ConfigurationLabels.compute_initial_conditions: self.compute_initial_conditions,
                 ConfigurationLabels.compute_preproduction: self.compute_preproduction,
+                ConfigurationLabels.biomass_solver: self.biomass_solver,
             }
         )

@@ -1,7 +1,7 @@
 [project]
 name = "seapopym-optimization"
 version = "0.1.0"
-description = "A Python package for optimizing SeapoPym models using DEAP and Dask"
+description = "A Python package for optimizing SeapoPym models using CMA-ES or a genetic algorithm (DEAP), with Dask"
 authors = [
     { name = "Jules Lehodey", email = "lehodey.jules+seapopym@gmail.com" }
 ]
@@ -11,6 +11,7 @@ requires-python = ">=3.12,<3.13"
 
 dependencies = [
     "seapopym",
+    "cma>=3.3",
     "deap>=1.4.3",
     "dask>=2025.9.0",
     "distributed>=2025.9.0",

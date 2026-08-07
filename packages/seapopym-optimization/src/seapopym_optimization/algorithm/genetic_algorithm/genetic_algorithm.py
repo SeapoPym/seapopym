@@ -74,6 +74,16 @@ class GeneticAlgorithmParameters:
         Represents the size of the population.
     cost_function_weight: tuple | float = (-1.0,)
         The weight of the cost function. The default value is (-1.0,) to minimize the cost function.
+    CX_METHOD: str = "two_point"
+        Crossover operator: "two_point" (combinatorial) or "sbx" (simulated binary crossover, real-coded).
+    CX_ETA: float = 15.0
+        SBX distribution index (eta_c). Higher = offspring closer to parents. Ignored for "two_point".
+    PATIENCE: int | None = None
+        Early-stopping patience (generations without sufficient improvement). None disables early stopping.
+    TOLERANCE: float = 1e-3
+        Minimum relative improvement of the best-so-far cost to reset the patience counter.
+    MIN_GEN: int = 0
+        Generation from which early stopping may trigger.
 
     """
 
@@ -85,11 +95,30 @@ class GeneticAlgorithmParameters:
     POP_SIZE: int
     TOURNSIZE: int = field(default=3)
     cost_function_weight: tuple[Number] = (-1.0,)
+    # Crossover operator: "two_point" (default, combinatorial) or "sbx" (simulated
+    # binary crossover, real-coded; the canonical NSGA-II partner of the
+    # polynomial-bounded mutation, Deb & Agrawal 1995). CX_ETA is the SBX
+    # distribution index (eta_c); ignored when CX_METHOD == "two_point".
+    CX_METHOD: str = field(default="two_point")
+    CX_ETA: float = field(default=15.0)
+    # Early stopping on the best-so-far cost. Disabled when PATIENCE is None
+    # (default: run the full NGEN). When set, optimisation stops once the best
+    # cost has not improved by more than TOLERANCE (relative) for PATIENCE
+    # consecutive generations, checked only from generation MIN_GEN onwards.
+    PATIENCE: int | None = field(default=None)
+    TOLERANCE: float = field(default=1e-3)
+    MIN_GEN: int = field(default=0)
 
     def __post_init__(self: GeneticAlgorithmParameters) -> None:
         """Check parameters and set default functions for selection, mating, mutation and variation."""
         self.select = tools.selTournament
-        self.mate = tools.cxTwoPoint  # NOTE(Jules): We should test this method `tools.cxSimulatedBinary``
+        if self.CX_METHOD == "sbx":
+            self.mate = tools.cxSimulatedBinaryBounded
+        elif self.CX_METHOD == "two_point":
+            self.mate = tools.cxTwoPoint
+        else:
+            msg = f"Unknown CX_METHOD {self.CX_METHOD!r}; expected 'two_point' or 'sbx'."
+            raise ValueError(msg)
         self.mutate = tools.mutPolynomialBounded
         self.variation = algorithms.varAnd
         self.cost_function_weight = tuple(
@@ -110,9 +139,14 @@ class GeneticAlgorithmParameters:
 
         toolbox.register("population", tools.initRepeat, list, individual)
         # Note: Evaluation is now handled by evaluation strategies, not the toolbox
-        toolbox.register("mate", self.mate)
         low_boundaries = [param.lower_bound for param in parameters]
         up_boundaries = [param.upper_bound for param in parameters]
+        if self.CX_METHOD == "sbx":
+            # cxSimulatedBinaryBounded needs eta/low/up bound at registration so
+            # toolbox.mate(c1, c2) stays a 2-argument call for varAnd.
+            toolbox.register("mate", self.mate, eta=self.CX_ETA, low=low_boundaries, up=up_boundaries)
+        else:
+            toolbox.register("mate", self.mate)
         toolbox.register("mutate", self.mutate, eta=self.ETA, indpb=self.INDPB, low=low_boundaries, up=up_boundaries)
         toolbox.register("select", self.select, tournsize=self.TOURNSIZE)
         return toolbox
@@ -276,8 +310,18 @@ class GeneticAlgorithm:
         return last_computed_generation + 1, population
 
     def optimize(self: GeneticAlgorithm) -> Logbook:
-        """This is the main function. Use it to optimize your model."""
+        """This is the main function. Use it to optimize your model.
+
+        If ``meta_parameter.PATIENCE`` is set, optimisation stops early once the best-so-far cost
+        has not improved by more than ``TOLERANCE`` (relative) for ``PATIENCE`` consecutive
+        generations (checked from generation ``MIN_GEN`` onwards). Otherwise it runs the full ``NGEN``.
+        """
         generation_start, population = self._initialization()
+
+        early_stopping = self.meta_parameter.PATIENCE is not None
+        weighted_fitness = (LogbookCategory.WEIGHTED_FITNESS.value, LogbookCategory.WEIGHTED_FITNESS.value)
+        best_cost = np.inf
+        generations_without_improvement = 0
 
         for gen in range(generation_start, self.meta_parameter.NGEN):
             log_message = f"Generation {gen} / {self.meta_parameter.NGEN}."
@@ -290,5 +334,28 @@ class GeneticAlgorithm:
 
             self.update_logbook(logbook)
             population[:] = offspring
+
+            if early_stopping:
+                # The cost-function weight is negative, so a higher weighted fitness means a lower
+                # cost; the best-so-far cost is therefore -max(weighted fitness) over the logbook.
+                current_cost = float(-self.logbook[weighted_fitness].max())
+                relative_improvement = (
+                    (best_cost - current_cost) / best_cost if np.isfinite(best_cost) and best_cost > 0 else 1.0
+                )
+                if relative_improvement > self.meta_parameter.TOLERANCE:
+                    generations_without_improvement = 0
+                else:
+                    generations_without_improvement += 1
+                best_cost = min(best_cost, current_cost)
+                if (
+                    gen >= self.meta_parameter.MIN_GEN
+                    and generations_without_improvement >= self.meta_parameter.PATIENCE
+                ):
+                    logger.info(
+                        "Early stopping at generation %d (best cost %.5g).",
+                        gen,
+                        best_cost,
+                    )
+                    break
 
         return self.logbook.copy()

@@ -205,6 +205,7 @@ class NoTransportModel:
 
 
 pre_kernel_light = [
+    function.TemperatureGilloolyKernel,  # MUST precede AverageTemperature: applies T -> T/(1+T/273)
     function.GlobalMaskKernel,
     function.mask_by_functional_group.MaskByFunctionalGroupKernelLight,
     function.DayLengthKernel,
@@ -286,6 +287,7 @@ class NoTransportLightModel(NoTransportModel):
 NoTransportSpaceOptimizedKernelLight = kernel_factory(
     class_name="NoTransportSpaceOptimizedLightKernel",
     kernel_unit=[
+        function.TemperatureGilloolyKernel,  # MUST precede AverageTemperature: applies T -> T/(1+T/273)
         function.GlobalMaskKernel,
         function.mask_by_functional_group.MaskByFunctionalGroupKernelLight,
         function.DayLengthKernel,

@@ -11,7 +11,10 @@ import numpy as np
 import xarray as xr
 
 from seapopym.core import kernel, template
-from seapopym.function.compiled_functions.biomass_compiled_functions import biomass_euler_explicite
+from seapopym.function.compiled_functions.biomass_compiled_functions import (
+    biomass_euler_explicite,
+    biomass_euler_implicite,
+)
 from seapopym.standard.attributs import biomass_desc
 from seapopym.standard.labels import ConfigurationLabels, CoordinatesLabels, ForcingLabels
 
@@ -22,9 +25,11 @@ if TYPE_CHECKING:
 def biomass(state: SeapopymState) -> xr.Dataset:
     """Wrap the biomass computation around the Numba function.
 
-    Uses a fully explicit Euler scheme for time integration (as described in the
-    GMD publication). This scheme is conditionally stable and requires small time
-    steps (typically daily) to maintain numerical stability.
+    The time-integration scheme is selected by the ``biomass_solver`` kernel
+    parameter (carried in the state): 'explicit' (fully explicit Euler, as in the
+    GMD publication; conditionally stable, requires daily time steps) or 'implicit'
+    (semi-implicit IMEX, unconditionally stable). Defaults to 'explicit' when the
+    flag is absent, preserving the published behaviour.
 
     Parameters
     ----------
@@ -38,8 +43,8 @@ def biomass(state: SeapopymState) -> xr.Dataset:
 
     Notes
     -----
-    For large time steps (e.g., weekly), consider using biomass_euler_implicite
-    instead to avoid numerical instability.
+    The implicit scheme treats the stiff mortality sink at t+1 and is preferred for
+    large time steps or stiff (warm, high-mortality) regimes to avoid instability.
 
     """
 
@@ -67,7 +72,10 @@ def biomass(state: SeapopymState) -> xr.Dataset:
         initial_conditions = _format_fields(state[ConfigurationLabels.initial_condition_biomass])
     else:
         initial_conditions = None
-    biomass = biomass_euler_explicite(
+    solver_flag = state.get(ConfigurationLabels.biomass_solver, "explicit")
+    solver_flag = solver_flag.item() if hasattr(solver_flag, "item") else solver_flag
+    solver = biomass_euler_implicite if str(solver_flag) == "implicit" else biomass_euler_explicite
+    biomass = solver(
         recruited=recruited, mortality=mortality, initial_conditions=initial_conditions, delta_time=int(delta_time)
     )
     biomass = xr.DataArray(
