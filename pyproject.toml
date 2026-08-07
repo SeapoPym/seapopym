@@ -1,6 +1,6 @@
 [project]
 name = "seapopym-workspace"
-version = "0.1.0"
+version = "0.1.1"
 description = "SeapoPym: Spatial Ecosystem And POpulation DYnamics Model - Production Repository"
 authors = [
     { name = "Jules Lehodey", email = "lehodey.jules+seapopym@gmail.com" }

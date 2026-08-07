@@ -1,6 +1,6 @@
 [project]
 name = "seapopym-optimization"
-version = "0.1.0"
+version = "0.1.1"
 description = "A Python package for optimizing SeapoPym models using CMA-ES or a genetic algorithm (DEAP), with Dask"
 authors = [
     { name = "Jules Lehodey", email = "lehodey.jules+seapopym@gmail.com" }
