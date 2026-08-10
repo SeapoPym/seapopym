@@ -13,12 +13,12 @@ def biomass_euler_explicite(
     initial_conditions: np.ndarray | None,
     delta_time: np.floating | np.integer,
 ) -> np.ndarray:
-    """Fully explicit Euler scheme for dB/dt = R - lambda*B.
+    """Explicit Euler scheme for dB/dt = R - lambda*B.
 
-    This function implements a fully explicit time integration scheme where both
-    recruitment and mortality are evaluated at time t.
+    The mortality term is evaluated with the biomass of the previous step, which is
+    what makes the scheme explicit.
 
-    Discretization: B(t+1) = B(t) + dt*(R(t) - lambda(t)*B(t))
+    Discretization: B(n+1) = B(n) + dt*(R(n+1) - lambda(n+1)*B(n))
 
     WARNING: This scheme is conditionally stable and requires small time steps
     (dt < 2/lambda_max) to avoid numerical instability and negative biomass values.
@@ -70,17 +70,17 @@ def biomass_euler_implicite(
     initial_conditions: np.ndarray | None,
     delta_time: np.floating | np.integer,
 ) -> np.ndarray:
-    """Semi-implicit (IMEX) scheme for dB/dt = R - lambda*B.
+    """Implicit (backward Euler) scheme for dB/dt = R - lambda*B.
 
-    This function implements a semi-implicit time integration scheme where:
-    - Recruitment R is treated explicitly (evaluated at time t)
-    - Mortality lambda*B is treated implicitly (evaluated at time t+1)
+    The right-hand side is evaluated at the new time step, so the mortality term uses
+    the biomass being solved for. The update is linear in B and therefore inverts in
+    closed form, with no iteration.
 
-    Discretization: B(t+1) = (B(t) + dt*R(t)) / (1 + dt*lambda(t))
+    Discretization: B(n+1) = (B(n) + dt*R(n+1)) / (1 + dt*lambda(n+1))
 
     This scheme is unconditionally stable (no timestep restriction) due to the
-    implicit treatment of the mortality term, which is the stiff/unstable component.
-    The explicit treatment of recruitment is sufficient since it's a source term.
+    implicit treatment of the mortality term, which is the stiff component. This is
+    the scheme described in the model paper (Lehodey et al., GMD).
 
     Parameters
     ----------
@@ -100,8 +100,8 @@ def biomass_euler_implicite(
 
     Notes
     -----
-    This scheme is preferred over fully explicit Euler (biomass_euler_explicite)
-    for stability, especially with large time steps (e.g., weekly instead of daily).
+    This scheme is preferred over explicit Euler (biomass_euler_explicite) for
+    stability, especially with large time steps (e.g., weekly instead of daily).
 
     """
     initial_conditions = (
